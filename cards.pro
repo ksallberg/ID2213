@@ -58,3 +58,8 @@ card('5',   color(spades)).
 card('4',   color(spades)).
 card('3',   color(spades)).
 card('2',   color(spades)).
+
+%% Return all of the cards in the deck
+deck(List) :- findall(card(Value, color(Color)),
+                      card(Value, color(Color)),
+                      List).
