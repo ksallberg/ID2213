@@ -5,3 +5,4 @@
 * four in a row
 * game of go
 * Bridge: http://en.wikipedia.org/wiki/Contract_bridge
+* Cluedo: The great detective game
