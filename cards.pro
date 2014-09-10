@@ -63,3 +63,13 @@ card('2',   color(spades)).
 deck(List) :- findall(card(Value, color(Color)),
                       card(Value, color(Color)),
                       List).
+
+%% Hand is defined as the current cards held by a player
+
+%% Player can be defined as a tuple of Name, Money and Hand
+%% player_state() :- {Name, Money, Hand}.
+
+% game_state() :- {Deck     :: Cards still available,
+                   [Card]   :: Cards on the table,
+                   [Player] :: A list of players
+                  }.
