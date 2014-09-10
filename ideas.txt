@@ -1,0 +1,3 @@
+* sinking ships game AI
+* poker playing game with AI (play against the computer) [See cards.pro]
+* parser (maybe also compiler OR interpreter) of toy language
