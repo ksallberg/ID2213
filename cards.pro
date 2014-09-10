@@ -70,6 +70,6 @@ deck(List) :- findall(card(Value, color(Color)),
 %% player_state() :- {Name, Money, Hand}.
 
 % game_state() :- {Deck     :: Cards still available,
-                   [Card]   :: Cards on the table,
-                   [Player] :: A list of players
-                  }.
+%                   [Card]   :: Cards on the table,
+%                   [Player] :: A list of players
+%                  }.
