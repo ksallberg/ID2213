@@ -30,6 +30,6 @@ print_board([]) :- write('ok').
 print_board([Line|Lines]) :- print_line(Line),
                              print_board(Lines).
 
-print_line([]) :- write('\n').
+print_line([]) :- nl.
 print_line([Char|Chars]) :- write(Char),
                             print_line(Chars).
