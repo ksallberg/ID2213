@@ -45,11 +45,13 @@ read_test(GameBoard, "stop") :- write('goodbye').
 read_test(GameBoard) :- write('please enter something:'),
                         nl,
                         read(X),
-                        isEqual(X, stop) ->
-                            read_test(GameBoard, "stop");
-                            (nl,
-                             write('this is what you wrote:'),
-                             nl,
-                             write(X),
-                             nl,
-                             read_test(GameBoard)).
+                        (stop == X ->
+                            read_test(GameBoard, "stop")
+                        ;
+                            nl,
+                            write('this is what you wrote:'),
+                            nl,
+                            write(X),
+                            nl,
+                            read_test(GameBoard)
+                        ).
