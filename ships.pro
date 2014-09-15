@@ -41,12 +41,12 @@ print_line([Char|Chars]) :- write(Char),
 % zhengyang
 % yes
 
-read_test(_, "stop") :- write('goodbye').
+read_test("stop")    :- write('goodbye').
 read_test(GameBoard) :- write('please enter something:'),
                         nl,
                         read(X),
                         (stop == X ->
-                            read_test(GameBoard, "stop")
+                            read_test("stop")
                         ;
                             nl,
                             write('this is what you wrote:'),
