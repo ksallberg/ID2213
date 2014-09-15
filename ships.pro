@@ -28,9 +28,8 @@ ocean_line(X, FullLine) :- NewX is X-1,
 
 print_board([]) :- write('ok').
 print_board([Line|Lines]) :- print_line(Line),
-                             write('\n'),
                              print_board(Lines).
 
-print_line([]) :- write('').
+print_line([]) :- write('\n').
 print_line([Char|Chars]) :- write(Char),
                             print_line(Chars).
