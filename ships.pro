@@ -41,7 +41,7 @@ print_line([Char|Chars]) :- write(Char),
 % zhengyang
 % yes
 
-read_test(GameBoard, "stop") :- write('goodbye').
+read_test(_, "stop") :- write('goodbye').
 read_test(GameBoard) :- write('please enter something:'),
                         nl,
                         read(X),
