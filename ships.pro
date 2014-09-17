@@ -33,3 +33,25 @@ print_board([Line|Lines]) :- print_line(Line),
 print_line([]) :- nl.
 print_line([Char|Chars]) :- write(Char),
                             print_line(Chars).
+
+% | ?- read_test.
+% please enter something:
+% |: zhengyang.
+% this is what you wrote:
+% zhengyang
+% yes
+
+read_test("stop")    :- write('goodbye').
+read_test(GameBoard) :- write('please enter something:'),
+                        nl,
+                        read(X),
+                        (stop == X ->
+                            read_test("stop")
+                        ;
+                            nl,
+                            write('this is what you wrote:'),
+                            nl,
+                            write(X),
+                            nl,
+                            read_test(GameBoard)
+                        ).
