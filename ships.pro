@@ -84,7 +84,7 @@ game_loop(GameBoard) :- write('This is your board: '),
                         nl,
                         read(Input),
                         (stop == Input ->
-                            read_test("stop")
+                            game_loop("stop")
                         ;
                             nl,
                             [X,Y] = Input,
