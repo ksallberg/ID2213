@@ -74,8 +74,21 @@ shoot([X,Y], Board, NewBoard) :-
     merge(BeforeCells, m, AfterCells, NewLine),
     merge(BeforeLines, NewLine, AfterLines, NewBoard).
 
-game_loop("stop")    :- write('Goodbye ship sinker!'),
-                        nl.
+%test the validity of input
+valid_input(stop).
+valid_input([X,Y]) :- number(X), number(Y).
+
+%loop until valid input is got
+check_input(Input, Input) :- valid_input(Input).
+check_input(Input, Valid) :- 
+        \+ valid_input(Input),
+        write('Illegal input, please shoot at [X,Y]'),
+        nl,
+        read(NewInput),
+        check_input(NewInput, Valid).
+
+
+game_loop("stop")    :- write('Goodbye ship sinker!').
 game_loop(GameBoard) :- write('This is your board: '),
                         nl,
                         print_board(GameBoard),
@@ -83,11 +96,12 @@ game_loop(GameBoard) :- write('This is your board: '),
                         write('Shoot at [X,Y]:'),
                         nl,
                         read(Input),
-                        (stop == Input ->
-                            read_test("stop")
+                        check_input(Input, ValidInput),
+                        (stop == ValidInput ->
+                            game_loop("stop")
                         ;
                             nl,
-                            [X,Y] = Input,
+                            [X,Y] = ValidInput,
                             shoot([X,Y], GameBoard, NewBoard),
                             nl,
                             game_loop(NewBoard)
