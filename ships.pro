@@ -1,4 +1,4 @@
-%% Create an initial matrix/ocean, with no ships    awd awd a wdwda dwa wda dw dwa dw 
+%% Create an initial matrix/ocean, with no ships
 ocean(X) :- X = [[~,~,~,~,~,~,~,~,~,~],
                  [~,~,~,~,~,~,~,~,~,~],
                  [~,~,~,~,~,~,~,~,~,~],
@@ -80,7 +80,7 @@ valid_input([X,Y]) :- number(X), number(Y).
 
 %loop until valid input is got
 check_input(Input, Input) :- valid_input(Input).
-check_input(Input, Valid) :- 
+check_input(Input, Valid) :-
         \+ valid_input(Input),
         write('Illegal input, please shoot at [X,Y]'),
         nl,
