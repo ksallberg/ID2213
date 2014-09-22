@@ -1,4 +1,4 @@
-%% Create an initial matrix/ocean, with no ships   
+%% Create an initial matrix/ocean, with no ships    awd awd a wdwda dwa wda dw dwa dw 
 ocean(X) :- X = [[~,~,~,~,~,~,~,~,~,~],
                  [~,~,~,~,~,~,~,~,~,~],
                  [~,~,~,~,~,~,~,~,~,~],
