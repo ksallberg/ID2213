@@ -47,17 +47,19 @@ play(Width, Height, Board) :- write('Give the X coordinate of the bomb: '),
         nl,
         write('Give the Y coordinate of the bomb: '),
         read(Y),
-        boom(X, Y, Width, Height, Board, NewBoard),
+        reverse(Board, NBoard),print2D(NBoard),
+        boom(X, Y, Width, Height, NBoard, NewBoard),
         print2D(NewBoard),
         play(Width, Height, NewBoard).
 
 
 boom(X, Y, Width, 0, Board, L).
 boom(X, Y, Width, Height, [H|T], L) :-  replace(X, Width, Y, Height, H, Newline), %height is the current line indicator
-                                        %write(Newline),
+%reverse(Newline, Ll),                                        
+%write(Newline),
                                         NHeight is Height - 1,
                                         boom(X, Y, Width, NHeight, T, Temp),
-                                        append(Temp, [Newline], L).
+                                        append(Temp, [Ll], L).
 
 %Drop the bomb into the board
 replace(X, 0, Y, Height,  List, Newlist). %:- [].
@@ -69,6 +71,15 @@ replace(X, X, Y, Y, [H|T], [o|Tt]) :- replace(X, X - 1, Y, Y, T, Tt).
 %simple copy operation
 replace(X, Width, Y, Height, [H|T], [H|Tt]) :-  NWidth is Width - 1,
                                                 replace(X, NWidth, Y, Height, T, Tt).
+
+
+
+reverse([], NewList) :- [].
+
+reverse([H|T], NewList) :-  reverse(T, Temp),
+                            append(Temp, [H], NewList).
+
+
 
 
 %works but it has not memory of previous bombs dropped
