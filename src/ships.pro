@@ -1,6 +1,6 @@
 % The game state is represented as:
-% {name, %string
-%  Player % See below
+% {Player,  %Player
+%  Computer %Player
 % }
 
 % A Player is represented as:
@@ -67,9 +67,9 @@ create_state(InitialBoard, X) :- ships(S),
 
 %% Starting position
 start :-    new_ocean(10, InitialBoard),
-            create_state(InitialBoard, State), 
-            %write(State),
-            game_loop(State).
+            create_state(InitialBoard, HumanSlave),
+            create_state(InitialBoard, ComputerLord),
+            game_loop({HumanSlave, ComputerLord}).
 
 
 %% take(3, [a,b,c,d], [], Y). :: Y = [a,b,c] ?
@@ -122,7 +122,7 @@ check_input(Input, Valid) :-
 
 
 game_loop("stop")    :- write('Goodbye ship sinker!').
-game_loop({GameBoard, Misses, Ships}) :-
+game_loop({{GameBoard, Misses, Ships}, Computer}) :-
                         write('This is your board: '),
                         nl,
                         print_board(GameBoard),
@@ -138,5 +138,5 @@ game_loop({GameBoard, Misses, Ships}) :-
                             [X,Y] = ValidInput,
                             shoot([X,Y], GameBoard, NewBoard),
                             nl,
-                            game_loop({NewBoard, Misses, Ships})
+                            game_loop({{NewBoard, Misses, Ships}, Computer})
                         ).
