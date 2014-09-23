@@ -1,4 +1,4 @@
-:- [testimport2].
+%:- [testimport2].
 
 % The game state is represented as:
 % {Player,  %Player
@@ -39,7 +39,17 @@ ships(X) :- Ship1 = {[0,0],    % Starting position
                      [],       % hitting points
                      [0,1]     % zhengyangs lucky point
                     },
-            X = [Ship1].
+            Ship2 = {[3,3],
+                     vertical,
+                     4,
+                     [],
+                     [3,2]},
+            Ship3 = {[8,5],
+                     horizontal,
+                     5,
+                     [],
+                     [8,3]},
+            X = [Ship1, Ship2, Ship3].
 
 test_print(Size) :- new_ocean(Size, Board),
                     print_board(Board).
@@ -69,7 +79,7 @@ create_state(InitialBoard, X) :- ships(S),
                                  X = {InitialBoard, [], S}.
 
 %% Starting position
-start :- hello, % print something (defined in other mod)
+start :- %hello, % print something (defined in other mod)
          new_ocean(10, InitialBoard),
          create_state(InitialBoard, HumanSlave),
          create_state(InitialBoard, ComputerLord),
@@ -112,23 +122,35 @@ shoot([X,Y], Board, NewBoard) :-
     merge(BeforeLines, NewLine, AfterLines, NewBoard).
 
 %test the validity of input
+%The input must be a positive integer
 valid_input(stop).
-valid_input([X,Y]) :- number(X), number(Y).
+valid_input([X,Y]) :-   number(X), 
+                        number(Y),
+                        X > 0,
+                        Y > 0.
 
 %loop until valid input is got
 check_input(Input, Input) :- valid_input(Input).
 check_input(Input, Valid) :-
         \+ valid_input(Input),
-        write('Illegal input, please shoot at [X,Y]'),
+        write('Illegal input, please give positive integers at [X,Y]'),
         nl,
         read(NewInput),
         check_input(NewInput, Valid).
 
+%picks a random element from the list and binds it to Ship
+select_ship(Ships, Ship) :- random_between(1, 3, Rand),
+                            nth1(Rand, Ships, Ship).
 
 game_loop("stop")    :- write('Goodbye ship sinker!').
 game_loop({{GameBoard, Misses, Ships}, Computer}) :-
                         write('This is your board: '),
                         nl,
+
+                        select_ship(Ships, Ship),
+                        write('Ship selected '), nl,
+                        write(Ship),
+
                         print_board(GameBoard),
                         nl,
                         write('Shoot at [X,Y]:'),

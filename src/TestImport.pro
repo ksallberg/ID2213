@@ -1,4 +1,4 @@
 
 
 
-helloWorld :- write("Hello world").
+helloWorld :- write('Hello world'), nl.
