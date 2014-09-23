@@ -1,3 +1,22 @@
+% The game state is represented as:
+% {name, %string
+%  Player % See below
+% }
+
+% A Player is represented as:
+% {GameBoard,
+%  [Miss],
+%  [Ship]
+% }
+
+% A ship is represented as:
+% { [X,Y], <- starting pos
+%   Orientation,
+%   Size of ship,
+%   [Hitting point],
+%   zhengyangs lucky point
+% }
+
 %% Create an initial matrix/ocean, with no ships
 ocean(X) :- X = [[~,~,~,~,~,~,~,~,~,~],
                  [~,~,~,~,~,~,~,~,~,~],
@@ -9,6 +28,14 @@ ocean(X) :- X = [[~,~,~,~,~,~,~,~,~,~],
                  [~,~,~,~,~,~,~,~,~,~],
                  [~,~,~,~,~,~,~,~,~,~],
                  [~,~,~,~,~,~,~,~,~,~]].
+
+ships(X) :- Ship1 = {[0,0],    % Starting position
+                     vertical, % Orientation
+                     3,        % Size of ship
+                     [],       % hitting points
+                     [0,1]     % zhengyangs lucky point
+                    },
+            X = [Ship1].
 
 test_print(Size) :- new_ocean(Size, Board),
                     print_board(Board).
