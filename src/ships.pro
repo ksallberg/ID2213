@@ -61,9 +61,15 @@ print_line([]) :- nl.
 print_line([Char|Chars]) :- write(Char),
                             print_line(Chars).
 
+
+create_state(InitialBoard, X) :- ships(S),
+                                 X = {InitialBoard, [], S}.
+
 %% Starting position
-play :- new_ocean(10, InitialBoard),
-        game_loop(InitialBoard).
+start :-    new_ocean(10, InitialBoard),
+            create_state(InitialBoard, State), 
+            %write(State),
+            game_loop(State).
 
 
 %% take(3, [a,b,c,d], [], Y). :: Y = [a,b,c] ?
@@ -116,7 +122,8 @@ check_input(Input, Valid) :-
 
 
 game_loop("stop")    :- write('Goodbye ship sinker!').
-game_loop(GameBoard) :- write('This is your board: '),
+game_loop({GameBoard, Misses, Ships}) :-
+                        write('This is your board: '),
                         nl,
                         print_board(GameBoard),
                         nl,
@@ -131,5 +138,5 @@ game_loop(GameBoard) :- write('This is your board: '),
                             [X,Y] = ValidInput,
                             shoot([X,Y], GameBoard, NewBoard),
                             nl,
-                            game_loop(NewBoard)
+                            game_loop({NewBoard, Misses, Ships})
                         ).
