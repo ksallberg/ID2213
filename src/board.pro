@@ -10,6 +10,8 @@ createOcean(X, Y, List) :-  append(List, [~], Newlist),
                             createOcean(X, NewY, Newlist).
 %----------------- end of christmas tree -----------------
 
+test.
+test1.
 
 start :-    write('Give the Width of the board: '),
             read(Width),
