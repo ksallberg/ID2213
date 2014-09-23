@@ -18,6 +18,11 @@
 % }
 
 %% Create an initial matrix/ocean, with no ships
+
+ensure_loaded([TestImport]).
+
+
+
 ocean(X) :- X = [[~,~,~,~,~,~,~,~,~,~],
                  [~,~,~,~,~,~,~,~,~,~],
                  [~,~,~,~,~,~,~,~,~,~],

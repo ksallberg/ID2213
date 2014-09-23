@@ -1,0 +1,4 @@
+
+
+
+helloWorld :- write("Hello world").
