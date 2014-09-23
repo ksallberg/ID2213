@@ -1,3 +1,5 @@
+:- [testimport2].
+
 % The game state is represented as:
 % {Player,  %Player
 %  Computer %Player
@@ -18,9 +20,6 @@
 % }
 
 %% Create an initial matrix/ocean, with no ships
-
-ensure_loaded([TestImport]).
-
 
 
 ocean(X) :- X = [[~,~,~,~,~,~,~,~,~,~],
@@ -66,15 +65,15 @@ print_line([]) :- nl.
 print_line([Char|Chars]) :- write(Char),
                             print_line(Chars).
 
-
 create_state(InitialBoard, X) :- ships(S),
                                  X = {InitialBoard, [], S}.
 
 %% Starting position
-start :-    new_ocean(10, InitialBoard),
-            create_state(InitialBoard, HumanSlave),
-            create_state(InitialBoard, ComputerLord),
-            game_loop({HumanSlave, ComputerLord}).
+start :- hello, % print something (defined in other mod)
+         new_ocean(10, InitialBoard),
+         create_state(InitialBoard, HumanSlave),
+         create_state(InitialBoard, ComputerLord),
+         game_loop({HumanSlave, ComputerLord}).
 
 
 %% take(3, [a,b,c,d], [], Y). :: Y = [a,b,c] ?
