@@ -80,7 +80,7 @@ chooseNSizedShips(N, FleetSize, Fleet, NFleet) :-
 
                                 %SelectedFlag == 0,
                                 NewN is N - 1,
-                                NFleet = NNNF,
+                                %NFleet = NNNF,
                                 chooseNSizedShips(NewN, FleetSize, Fleet, NNNF).
 
 
