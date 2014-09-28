@@ -44,7 +44,7 @@ ships4(Ships) :-
                         [[5,2], [5,3]]
                      },
                     Shipd = {
-                        [[3,9], [4,9], [5,9],[6,9]],    
+                        [[6,9], [7,9], [8,9],[9,9]],    
                         [],     
                         [[4,9], [5,9]]
                      },
@@ -98,14 +98,14 @@ pickRandomShip(1, N, Ships, TempList, Ship) :-
                             {ShipCoords, _, _} = S,
 
                             write('Selected Ship: '), write(ShipCoords), nl,
-
+                            %sleep(1),
                             %if it evaluates to false, there is clash
                             (not(collision(ShipCoords, TempList)) ->
                                 write('clash, attempting again'),nl,
                                 pickRandomShip(1, N, Ships, TempList, NewShip),
-                                sleep(1),
                                 append([], NewShip, Ship)
                               ;
+                              sleep(1),
                               append([], S, Ship)
                             ).
 
