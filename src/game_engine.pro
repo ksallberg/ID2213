@@ -197,7 +197,7 @@ game_loop({Human, AI}) :-
     print_board(AINewBoard),
     nl,
     %% AI has played. Now its the humans turn:
-    write('This is your board: '),
+    write('This is your board, ship sinker: '),
     nl,
     print_board(HumanGameBoard),
     nl,
