@@ -1,3 +1,4 @@
+:- [stupid_ai].
 
 % The game state is represented as:
 % {Player,  %Player
@@ -185,22 +186,34 @@ check_input(Input, Valid) :-
 
 
 game_loop("stop")    :- write('Goodbye ship sinker!').
-game_loop({Human, {GameBoard, Misses, Fleet}}) :-
-                        write('This is your board: '),
-                        nl,
-                        print_board(GameBoard),
-                        nl,
-                        write('Shoot at [X,Y]:'),
-                        nl,
-                        read(Input),
-                        check_input(Input, ValidInput),
-                        (stop == ValidInput ->
-                            game_loop("stop")
-                        ;
-                            nl,
-                            [X,Y] = ValidInput,
-                            shoot([X,Y], {GameBoard, Misses, Fleet},
-                                         {NewBoard, Misses, NewFleet}),
-                            nl,
-                            game_loop({Human, {NewBoard, Misses, NewFleet}})
-                        ).
+game_loop({Human, AI}) :-
+    {AIGameBoard,    AIMisses,    AIFleet}    = AI,
+    {HumanGameBoard, HumanMisses, HumanFleet} = Human,
+    %% Before the human player gets its turn, let the AI play
+    ai_choice(AIGameBoard, AIInput),
+    shoot(AIInput, AI, {AINewBoard, AINewMisses, AINewFleet}),
+    write('Hello, I am the mighty AI, this is my board so far:'),
+    nl,
+    print_board(AINewBoard),
+    nl,
+    %% AI has played. Now its the humans turn:
+    write('This is your board: '),
+    nl,
+    print_board(HumanGameBoard),
+    nl,
+    write('Shoot at [X,Y]:'),
+    nl,
+    read(Input),
+    check_input(Input, ValidInput),
+    (stop == ValidInput ->
+        game_loop("stop")
+    ;
+        nl,
+        [X,Y] = ValidInput,
+        shoot([X,Y],
+              Human,
+              {HumanNewBoard, HumanNewMisses, HumanNewFleet}),
+        nl,
+        game_loop({{HumanNewBoard, HumanNewMisses, HumanNewFleet},
+                   {AINewBoard, AINewMisses, AINewFleet}})
+    ).
