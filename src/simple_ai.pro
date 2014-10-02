@@ -144,7 +144,13 @@ it_smart_pick(Board, Coordinate, NewCoordinate) :-
     (IsExhausted == true ->
         is_smart_pick(Board, Result, NewCoordinate)
     ;
-        NewCoordinate = Result
+        (IsExhausted == h ->
+            % if h we should return something surrounding which is not h
+            smart_pick(Board, Result, Round2),
+            NewCoordinate = Round2
+        ;
+            NewCoordinate = Result
+        )
     ).
 
 %% Interface for other modules to use, given a board, returns
