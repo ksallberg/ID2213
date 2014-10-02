@@ -30,6 +30,7 @@ occurence_in_row(LookFor, [Elem   |Elems], CounterIn, CounterOut) :-
 
 %% Given something to search for and a board, either return the coordinate
 %% matching whatever to look for, or return no (prolog no answer)
+occurence_in_board(_,       [],                _,         no_elem).
 occurence_in_board(LookFor, [Row|Rows]=_Board, CounterIn, CounterOut) :-
     occurence_in_row(LookFor, Row, 0, ColNum),
     (ColNum == no_elem ->
