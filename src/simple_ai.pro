@@ -7,19 +7,27 @@
 debug_board([[~,~,~,~,~,~,~,~,~,~],
              [~,~,~,~,~,~,~,~,~,~],
              [~,~,~,~,~,~,~,~,~,~],
+             [~,~,~,~,m,~,~,~,~,~],
+             [~,~,~,m,h,m,~,~,~,~],
+             [~,~,~,~,t,~,~,~,~,~],
              [~,~,~,~,~,~,~,~,~,~],
-             [~,~,~,~,h,~,~,~,~,~],
-             [~,~,~,~,~,~,~,~,~,~],
-             [~,~,~,~,~,~,~,~,~,~],
-             [~,~,~,~,~,~,~,~,~,~],
-             [~,~,~,~,~,~,~,~,~,~],
-             [~,~,~,~,~,~,~,~,~,~],
+             [~,~,~,~,s,~,~,~,~,~],
+             [~,~,~,~,s,~,~,~,~,~],
+             [~,~,~,~,~,~,~,h,~,~],
              [~,~,~,~,~,~,~,~,~,~]]).
 
 test_me :-
-    debug_board(X),
-    first_occurrence_of(h, X, Y),
-    write(Y).
+    debug_board(Board),
+    first_occurrence_of(h, Board, Y),
+    write(Y),
+    nl,
+    look_at(Board, {4,5}, Elem),
+    write('element is:'),
+    nl,
+    write(Elem),
+    nl,
+    exhausted(Board, {4,4}, IsExhausted),
+    write(IsExhausted).
 
 %% The element we look for is the head of row, return counter :)
 occurence_in_row(_,       [],              _,         no_elem).
@@ -46,6 +54,36 @@ occurence_in_board(LookFor, [Row|Rows], CounterIn, CounterOut) :-
 %% holds such a value.
 first_occurrence_of(LookFor, Board, ReturnCoordinate) :-
     occurence_in_board(LookFor, Board, 0, ReturnCoordinate).
+
+look_at(Board, {X,Y}, Value) :-
+    look_at_board(Board, {X,Y}, Y, Value).
+
+look_at_board([Row|Rows], {X,Y}, 0, Value) :-
+    look_at_row(Row, X, Value).
+look_at_board([Row|Rows], {X,Y}, RowCounter, Value) :-
+    NextRowCounter is RowCounter - 1,
+    look_at_board(Rows, {X,Y}, NextRowCounter, Value).
+
+look_at_row([Head|Tail], 0, Head).
+look_at_row([Head|Tail], X, Element) :-
+    NextX is X - 1,
+    look_at_row(Tail, NextX, Element).
+
+exhausted(Board, {X, Y}, Response) :-
+    A1 is Y - 1,
+    A2 is Y + 1,
+    A3 is X - 1,
+    A4 is X + 1,
+    look_at(Board, {X,  A1}, Resp1),
+    look_at(Board, {X,  A2}, Resp2),
+    look_at(Board, {A3, Y},  Resp3),
+    look_at(Board, {A4, Y},  Resp4),
+    (
+        (Resp1 \= '~', Resp2 \= '~', Resp3 \= '~', Resp4 \= '~') ->
+        Response = true
+    ;
+        Response = false
+    ).
 
 %% Interface for other modules to use, given a board, returns
 %% the choice of the AI.
