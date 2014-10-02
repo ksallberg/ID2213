@@ -11,7 +11,7 @@ debug_board([[~,~,~,~,~,~,~,~,~,~],
              [~,~,~,m,h,m,~,~,~,~],
              [~,~,~,~,t,~,~,~,~,~],
              [~,~,~,~,~,~,~,~,~,~],
-             [~,~,~,~,s,~,~,~,~,~],
+             [~,~,~,~,m,~,~,~,~,~],
              [~,~,~,~,s,~,~,~,~,~],
              [~,~,~,~,~,~,~,h,~,~],
              [~,~,~,~,~,~,~,~,~,~]]).
@@ -85,8 +85,76 @@ exhausted(Board, {X, Y}, Response) :-
         Response = false
     ).
 
+%% the new coordinate is not exhausted
+smart_pick(Board, Coordinate, NewCoordinate) :-
+    exhausted(Board, Coordinate, false),
+    {X, Y} = Coordinate,
+    Up    is Y - 1,
+    Down  is Y + 1,
+    Left  is X - 1,
+    Right is X + 1,
+    look_at(Board, {X, Up}, RespUp),
+   (RespUp == '~' ->
+      NewCoordinate = {X, Up}
+   ;
+      look_at(Board, {Left, Y}, RespLeft),
+      (RespLeft == '~' ->
+           NewCoordinate = {Left, Y}
+       ;
+           look_at(Board, {X, Down}, RespDown),
+           (RespDown == '~' ->
+               NewCoordinate = {X, Down}
+           ;
+               NewCoordinate = {Right, Y}
+           )
+      )
+   ).
+% in this clause, we are in an exhausted square:
+smart_pick(Board, Coordinate, NewCoordinate) :-
+    {X, Y} = Coordinate,
+    Up    is Y - 1,
+    Down  is Y + 1,
+    Left  is X - 1,
+    Right is X + 1,
+    look_at(Board, {X, Up}, RespUp),
+   (RespUp == 'h' ->
+      NewCoordinate = {X, Up}
+   ;
+      look_at(Board, {Left, Y}, RespLeft),
+      (RespLeft == 'h' ->
+           NewCoordinate = {Left, Y}
+       ;
+           look_at(Board, {X, Down}, RespDown),
+           (RespDown == 'h' ->
+               NewCoordinate = {X, Down}
+           ;
+               NewCoordinate = {Right, Y}
+           )
+      )
+   ).
+
+random_not_missed(Board, [RandX, RandY]) :-
+    random(0, 9, RandX),
+    random(0, 9, RandY).
+
+% keep calling smart_pick until we have a not exhausted coordinate
+it_smart_pick(Board, Coordinate, NewCoordinate) :-
+    smart_pick(Board, Coordinate, Result),
+    exhausted(Board, Result, IsExhausted),
+    (IsExhausted == true ->
+        is_smart_pick(Board, Result, NewCoordinate)
+    ;
+        NewCoordinate = Result
+    ).
+
 %% Interface for other modules to use, given a board, returns
 %% the choice of the AI.
-%% FIXME: Needs implementation
-ai_choice(Board, [ShotX, ShotY]) :-
-    needs_implementation.
+ai_choice(Board, GiveBack) :-
+    first_occurence_of(h, Board, FirstH),
+    (Result == no_elem ->
+        % do random picking which is not already shot
+        GiveBack = random_not_missed(Board, GiveBack)
+     ;
+        % Smart_hit gives a coord that is not exhausted
+        it_smart_pick(Board, FirstH, GiveBack)
+    ).

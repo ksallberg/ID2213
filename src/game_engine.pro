@@ -1,4 +1,4 @@
-:- [stupid_ai].
+:- [simple_ai].
 
 % The game state is represented as:
 % {Player,  %Player
