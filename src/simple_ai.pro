@@ -7,7 +7,7 @@
 debug_board([[~,~,~,~,~,~,~,~,~,~],
              [~,~,~,~,~,~,~,~,~,~],
              [~,~,~,~,~,~,~,~,~,~],
-             [~,~,~,~,h,~,~,~,~,~],
+             [~,~,~,~,~,~,~,~,~,~],
              [~,~,~,~,h,~,~,~,~,~],
              [~,~,~,~,~,~,~,~,~,~],
              [~,~,~,~,~,~,~,~,~,~],
@@ -18,7 +18,7 @@ debug_board([[~,~,~,~,~,~,~,~,~,~],
 
 test_me :-
     debug_board(X),
-    occurence_in_board(h, X, 0, Y),
+    first_occurrence_of(h, X, Y),
     write(Y).
 
 %% The element we look for is the head of row, return counter :)
@@ -30,8 +30,9 @@ occurence_in_row(LookFor, [Elem   |Elems], CounterIn, CounterOut) :-
 
 %% Given something to search for and a board, either return the coordinate
 %% matching whatever to look for, or return no (prolog no answer)
-occurence_in_board(_,       [],                _,         no_elem).
-occurence_in_board(LookFor, [Row|Rows]=_Board, CounterIn, CounterOut) :-
+%% [Row|Rows] is the board
+occurence_in_board(LookFor, []        , _,         no_elem).
+occurence_in_board(LookFor, [Row|Rows], CounterIn, CounterOut) :-
     occurence_in_row(LookFor, Row, 0, ColNum),
     (ColNum == no_elem ->
         NewCounter is CounterIn + 1,
@@ -43,8 +44,8 @@ occurence_in_board(LookFor, [Row|Rows]=_Board, CounterIn, CounterOut) :-
 %% first_occurence_of takes a Board and a value to look for
 %% (such as h, m, s), then returns the first coordinate which
 %% holds such a value.
-first_occurrence_of(Board, LookFor, ReturnCoordinate) :-
-    occurence_in_board(LookFor, Board, 0, 0, ReturnCoordinate).
+first_occurrence_of(LookFor, Board, ReturnCoordinate) :-
+    occurence_in_board(LookFor, Board, 0, ReturnCoordinate).
 
 %% Interface for other modules to use, given a board, returns
 %% the choice of the AI.
