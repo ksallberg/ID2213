@@ -29,6 +29,11 @@ test_me :-
     exhausted(Board, {4,4}, IsExhausted),
     write(IsExhausted).
 
+test_water :-
+    debug_board(Board),
+    first_occurrence_of(~, Board, X),
+    write(X).
+
 %% The element we look for is the head of row, return counter :)
 occurence_in_row(_,       [],              _,         no_elem).
 occurence_in_row(LookFor, [LookFor|Elems], Counter,   Counter).
@@ -136,24 +141,11 @@ smart_pick(Board, Coordinate, NewCoordinate) :-
         )
     ).
 
-%% FIXME: this can now return missed squares,
-%%        hit squares or sunk squares, preferrably it
-%%        should only return water tiles.
-shoot_water(Board, ShootAtCoord) :-
-    write('SHOOOOT WATER!!!'),
-    nl,
-    first_occurrence_of('~', Board, FirstW),
-    nl,
-    write('nu:'),
-    write(FirstW),
-    (FirstW == no_elem ->
-        write('no elem!!!'),
-        %% Now, there is no more water left to shoot at,
-        %% so lets shoot at [0,0]
-        ShootAtCoord = [0,0]
-    ;
-        ShootAtCoord = FirstW
-    ).
+%% Random shot
+%% FIXME: This can shoot at already hit places :(
+do_random(Board, [RandX, RandY]) :-
+    random(0, 9, RandX),
+    random(0, 9, RandY).
 
 % keep calling smart_pick until we have a not exhausted coordinate
 it_smart_pick(Board, Coordinate, NewCoordinate) :-
@@ -187,17 +179,12 @@ it_smart_pick(Board, Coordinate, NewCoordinate) :-
 %% the choice of the AI.
 ai_choice(Board, GiveBack) :-
     first_occurrence_of(h, Board, FirstH),
-    write('hello'),
     (FirstH == no_elem ->
         % do random picking which is not already shot
-        nl,
-        write('water!!'),
-        shoot_water(Board, GiveBack),
-        nl,
-        write('water ooooook'),
-        nl
+        do_random(Board, GiveBack)
      ;
         write('Simple ai: h found, look at surrounding places'),
         % Smart_hit gives a coord that is not exhausted
-        it_smart_pick(Board, FirstH, GiveBack)
+        it_smart_pick(Board, FirstH, {X, Y}),
+        GiveBack = [X, Y]
     ).
