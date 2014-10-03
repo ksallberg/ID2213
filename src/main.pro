@@ -1,4 +1,4 @@
-:- [game_engine, shipyard].
+:- [game_engine].
 
 % test runs start from ships zhengyang
 test :- start.

@@ -32,11 +32,15 @@ ocean(X) :- X = [[~,~,~,~,~,~,~,~,~,~],
 
 fleet(Fleet) :-
         Ship1 = {
-                   [[0,0], [0,1], [0,2]],    % Starting position
-                   [],       % hitting points
-                   [0,1]     % zhengyangs lucky point
+                   [[3,2], [4,2], [5,2]],    % Ship positions
+                   [],                       % hit points? FIXME whats this?
+                   [5,2]                     % zhengyangs lucky point
                 },
-        Fleet = [Ship1].
+        Ship2 = {  [[4,4], [5,4], [6,4]],
+                   [],
+                   [6,4]
+                },
+        Fleet = [Ship1, Ship2].
 
 new_ocean(Size, Board) :- ocean_of_size(Size, Size, Board).
 

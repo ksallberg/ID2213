@@ -140,8 +140,14 @@ smart_pick(Board, Coordinate, NewCoordinate) :-
 %%        hit squares or sunk squares, preferrably it
 %%        should only return water tiles.
 shoot_water(Board, ShootAtCoord) :-
+    write('SHOOOOT WATER!!!'),
+    nl,
     first_occurrence_of('~', Board, FirstW),
+    nl,
+    write('nu:'),
+    write(FirstW),
     (FirstW == no_elem ->
+        write('no elem!!!'),
         %% Now, there is no more water left to shoot at,
         %% so lets shoot at [0,0]
         ShootAtCoord = [0,0]
@@ -181,11 +187,17 @@ it_smart_pick(Board, Coordinate, NewCoordinate) :-
 %% the choice of the AI.
 ai_choice(Board, GiveBack) :-
     first_occurrence_of(h, Board, FirstH),
+    write('hello'),
     (FirstH == no_elem ->
         % do random picking which is not already shot
-        shoot_water(Board, GiveBack)
+        nl,
+        write('water!!'),
+        shoot_water(Board, GiveBack),
+        nl,
+        write('water ooooook'),
+        nl
      ;
         write('Simple ai: h found, look at surrounding places'),
         % Smart_hit gives a coord that is not exhausted
-        it_smart_pick(Board, FirstH, GiveBack),
+        it_smart_pick(Board, FirstH, GiveBack)
     ).
