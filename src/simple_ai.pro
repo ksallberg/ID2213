@@ -7,13 +7,13 @@
 debug_board([[~,~,~,~,~,~,~,~,~,~],
              [~,~,~,~,~,~,~,~,~,~],
              [~,~,~,~,~,~,~,~,~,~],
-             [~,~,~,~,m,~,~,~,~,~],
-             [~,~,~,m,h,m,~,~,~,~],
-             [~,~,~,~,t,~,~,~,~,~],
              [~,~,~,~,~,~,~,~,~,~],
-             [~,~,~,~,m,~,~,~,~,~],
-             [~,~,~,~,s,~,~,~,~,~],
-             [~,~,~,~,~,~,~,h,~,~],
+             [~,~,~,~,~,~,~,~,~,~],
+             [~,~,~,~,~,~,~,~,~,~],
+             [~,~,~,~,~,~,~,~,~,~],
+             [~,~,~,~,~,~,~,~,~,~],
+             [~,~,~,~,~,~,~,~,~,~],
+             [~,~,~,~,~,~,~,~,~,~],
              [~,~,~,~,~,~,~,~,~,~]]).
 
 test_me :-
@@ -70,14 +70,14 @@ look_at_row([Head|Tail], X, Element) :-
     look_at_row(Tail, NextX, Element).
 
 exhausted(Board, {X, Y}, Response) :-
-    A1 is Y - 1,
-    A2 is Y + 1,
-    A3 is X - 1,
-    A4 is X + 1,
-    look_at(Board, {X,  A1}, Resp1),
-    look_at(Board, {X,  A2}, Resp2),
-    look_at(Board, {A3, Y},  Resp3),
-    look_at(Board, {A4, Y},  Resp4),
+    Up    is Y - 1,
+    Down  is Y + 1,
+    Left  is X - 1,
+    Right is X + 1,
+    look_at(Board, {X,     Up},   Resp1),
+    look_at(Board, {X,     Down}, Resp2),
+    look_at(Board, {Left,  Y},    Resp3),
+    look_at(Board, {Right, Y},    Resp4),
     (
         (Resp1 \= '~', Resp2 \= '~', Resp3 \= '~', Resp4 \= '~') ->
         Response = true
@@ -133,9 +133,18 @@ smart_pick(Board, Coordinate, NewCoordinate) :-
       )
    ).
 
-random_not_missed(Board, [RandX, RandY]) :-
-    random(0, 9, RandX),
-    random(0, 9, RandY).
+%% FIXME: this can now return missed squares,
+%%        hit squares or sunk squares, preferrably it
+%%        should only return water tiles.
+shoot_water(Board, ShootAtCoord) :-
+    first_occurrence_of('~', Board, FirstW),
+    (FirstW == no_elem ->
+        %% Now, there is no more water left to shoot at,
+        %% so lets shoot at [0,0]
+        ShootAtCoord = [0,0]
+    ;
+        ShootAtCoord = FirstW
+    ).
 
 % keep calling smart_pick until we have a not exhausted coordinate
 it_smart_pick(Board, Coordinate, NewCoordinate) :-
@@ -156,11 +165,12 @@ it_smart_pick(Board, Coordinate, NewCoordinate) :-
 %% Interface for other modules to use, given a board, returns
 %% the choice of the AI.
 ai_choice(Board, GiveBack) :-
-    first_occurence_of(h, Board, FirstH),
-    (Result == no_elem ->
+    first_occurrence_of(h, Board, FirstH),
+    (FirstH == no_elem ->
         % do random picking which is not already shot
-        GiveBack = random_not_missed(Board, GiveBack)
+        shoot_water(Board, GiveBack)
      ;
+        write('Simple ai: h found, look at surrounding places'),
         % Smart_hit gives a coord that is not exhausted
         it_smart_pick(Board, FirstH, GiveBack)
     ).
