@@ -180,6 +180,7 @@ valid_input(stop).
 valid_input([X,Y]) :- number(X), number(Y).
 
 %loop until valid input is gotten
+check_input(s, [0,0]).
 check_input(Input, Input) :- valid_input(Input).
 check_input(Input, Valid) :-
         \+ valid_input(Input),
@@ -189,7 +190,7 @@ check_input(Input, Valid) :-
         check_input(NewInput, Valid).
 
 
-game_loop("stop")    :- write('Goodbye ship sinker!').
+game_loop("stop")      :- write('Goodbye ship sinker!').
 game_loop({Human, AI}) :-
     {AIGameBoard,    AIMisses,    AIFleet}    = AI,
     {HumanGameBoard, HumanMisses, HumanFleet} = Human,
