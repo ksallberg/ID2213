@@ -1,25 +1,25 @@
 
 
 ships3(Ships) :-    Shipa = {
-                        [[0,0], [0,1], [0,2]],    
-                        [],       
+                        [[0,0], [0,1], [0,2]],
+                        [],
                         [0,1]
                      },
                     Shipb = {
-                        [[5,5], [6,5], [7,5]],    
-                        [],     
+                        [[5,5], [6,5], [7,5]],
+                        [],
                         [6,5]
                      },
                     %possible clash here
                     Shipc = {
-                        [[7,8], [8,8], [9,8]],    
-                        [],     
+                        [[7,8], [8,8], [9,8]],
+                        [],
                         [8,8]
                      },
                     %possible clash here
                     Shipd = {
-                        [[4,7], [4,8], [4,9]],    
-                        [],     
+                        [[4,7], [4,8], [4,9]],
+                        [],
                         [0,8]
                      },
                     Ships = [Shipa, Shipb, Shipc, Shipd].
@@ -27,31 +27,31 @@ ships3(Ships) :-    Shipa = {
 ships4(Ships) :-
                     %possible clash here
                     Shipa = {
-                        [[4,8], [5,8], [6,8],[7,8]],    
-                        [],       
+                        [[4,8], [5,8], [6,8],[7,8]],
+                        [],
                         [[5,8], [6,8]]
                      },
 
                     %possible clash here
                     Shipb = {
-                        [[8,6], [8,7], [8,8],[8,9]],    
-                        [],     
+                        [[8,6], [8,7], [8,8],[8,9]],
+                        [],
                         [[8,7], [8,8]]
                      },
                     Shipc = {
-                        [[5,1], [5,2], [5,3],[5,4]],    
-                        [],     
+                        [[5,1], [5,2], [5,3],[5,4]],
+                        [],
                         [[5,2], [5,3]]
                      },
                     Shipd = {
-                        [[6,9], [7,9], [8,9],[9,9]],    
-                        [],     
+                        [[6,9], [7,9], [8,9],[9,9]],
+                        [],
                         [[4,9], [5,9]]
                      },
                     Ships = [Shipa, Shipb, Shipc, Shipd].
 
 
-createFleet(Fleet) :- 
+createFleet(Fleet) :-
                         ships3(Fleet3),
                         ships4(Fleet4),
 
@@ -65,13 +65,13 @@ createFleet(Fleet) :-
 
 
 
-chooseNSizedShips(0, FleetSize, Fleet, Flag, Buffer, NFleet) :- 
+chooseNSizedShips(0, FleetSize, Fleet, Flag, Buffer, NFleet) :-
                                 %write('empty nfleet'),nl,
                                 length(NFleet, Length),
                                 Length == 0,
                                 NFleet = [].
 
-chooseNSizedShips(N, FleetSize, Fleet, Flag, Buffer, NFleet) :- 
+chooseNSizedShips(N, FleetSize, Fleet, Flag, Buffer, NFleet) :-
                 NN is N - 1,
                 %sleep(1),
 
@@ -89,8 +89,7 @@ chooseNSizedShips(N, FleetSize, Fleet, Flag, Buffer, NFleet) :-
                 {ShipCoords, _, _} = Ship,
 
                 append(Temp, [Ship], NFleet).
-                                
-                               
+
 %picks a unique random element from the list and stores it to Ship
 pickRandomShip(1, N, Ships, TempList, Ship) :-
                             random_between(1, N, Rand),
@@ -109,7 +108,7 @@ pickRandomShip(1, N, Ships, TempList, Ship) :-
                               append([], S, Ship)
                             ).
 
-collision(Ship, []).% :- write('no clash yet'),nl.                     
+collision(Ship, []).% :- write('no clash yet'),nl.
 collision(Ship, [H|T]) :-   {ShipCoords, _, _} = H,
                             clashFree(Ship, ShipCoords),
                             collision(Ship, T).
@@ -118,7 +117,7 @@ collision(Ship, [H|T]) :-   {ShipCoords, _, _} = H,
 %we are handling now lists with coordinates
 clashFree([], FleetShip).
 clashFree([H|T], FleetShip) :-  not(member(H, FleetShip)),
-                                clashFree(T, FleetShip).  
+                                clashFree(T, FleetShip).
 
 
 print2D([]) :-  nl.

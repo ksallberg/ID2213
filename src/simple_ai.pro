@@ -78,8 +78,7 @@ exhausted(Board, {X, Y}, Response) :-
     look_at(Board, {X,     Down}, Resp2),
     look_at(Board, {Left,  Y},    Resp3),
     look_at(Board, {Right, Y},    Resp4),
-    (
-        (Resp1 \= '~', Resp2 \= '~', Resp3 \= '~', Resp4 \= '~') ->
+    ((Resp1 \= '~', Resp2 \= '~', Resp3 \= '~', Resp4 \= '~') ->
         Response = true
     ;
         Response = false
@@ -87,7 +86,9 @@ exhausted(Board, {X, Y}, Response) :-
 
 %% the new coordinate is not exhausted
 smart_pick(Board, Coordinate, NewCoordinate) :-
+    write('BEFORE'),
     exhausted(Board, Coordinate, false),
+    write('AFTER'),
     {X, Y} = Coordinate,
     Up    is Y - 1,
     Down  is Y + 1,
@@ -111,27 +112,29 @@ smart_pick(Board, Coordinate, NewCoordinate) :-
    ).
 % in this clause, we are in an exhausted square:
 smart_pick(Board, Coordinate, NewCoordinate) :-
+    write('ALTERNATIVE'),
     {X, Y} = Coordinate,
     Up    is Y - 1,
     Down  is Y + 1,
     Left  is X - 1,
     Right is X + 1,
     look_at(Board, {X, Up}, RespUp),
-   (RespUp == 'h' ->
-      NewCoordinate = {X, Up}
-   ;
-      look_at(Board, {Left, Y}, RespLeft),
-      (RespLeft == 'h' ->
-           NewCoordinate = {Left, Y}
-       ;
-           look_at(Board, {X, Down}, RespDown),
-           (RespDown == 'h' ->
-               NewCoordinate = {X, Down}
-           ;
-               NewCoordinate = {Right, Y}
-           )
-      )
-   ).
+    write('opop1'),
+    (RespUp == 'h' ->
+        NewCoordinate = {X, Up}
+    ;
+        look_at(Board, {Left, Y}, RespLeft),
+        (RespLeft == 'h' ->
+            NewCoordinate = {Left, Y}
+        ;
+            look_at(Board, {X, Down}, RespDown),
+            (RespDown == 'h' ->
+                NewCoordinate = {X, Down}
+            ;
+                NewCoordinate = {Right, Y}
+            )
+        )
+    ).
 
 %% FIXME: this can now return missed squares,
 %%        hit squares or sunk squares, preferrably it
@@ -148,16 +151,28 @@ shoot_water(Board, ShootAtCoord) :-
 
 % keep calling smart_pick until we have a not exhausted coordinate
 it_smart_pick(Board, Coordinate, NewCoordinate) :-
+    write('smart pick IT'),
+    nl,
     smart_pick(Board, Coordinate, Result),
+    write('NEVER COMES HERE'),
     exhausted(Board, Result, IsExhausted),
+    %% The coodinate picked is exhausted:
     (IsExhausted == true ->
+        write('EXHAUSTED'),
         is_smart_pick(Board, Result, NewCoordinate)
     ;
-        (IsExhausted == h ->
+    %% The cordinate picked is NOT exhausted:
+        look_at(Board, Result, Value),
+        (Value == h ->
+            write('first scenario'),
+            nl,
             % if h we should return something surrounding which is not h
             smart_pick(Board, Result, Round2),
             NewCoordinate = Round2
         ;
+            write('coming here'),
+            write(Result),
+            nl,
             NewCoordinate = Result
         )
     ).
@@ -172,5 +187,5 @@ ai_choice(Board, GiveBack) :-
      ;
         write('Simple ai: h found, look at surrounding places'),
         % Smart_hit gives a coord that is not exhausted
-        it_smart_pick(Board, FirstH, GiveBack)
+        it_smart_pick(Board, FirstH, GiveBack),
     ).
