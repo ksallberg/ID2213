@@ -19,13 +19,7 @@ debug_board([[~,~,~,~,~,~,~,~,~,~],
 test_me :-
     debug_board(Board),
     first_occurrence_of(h, Board, Y),
-    write(Y),
-    nl,
     look_at(Board, {4,5}, Elem),
-    write('element is:'),
-    nl,
-    write(Elem),
-    nl,
     exhausted(Board, {4,4}, IsExhausted),
     write(IsExhausted).
 
@@ -91,9 +85,7 @@ exhausted(Board, {X, Y}, Response) :-
 
 %% the new coordinate is not exhausted
 smart_pick(Board, Coordinate, NewCoordinate) :-
-    write('BEFORE'),
     exhausted(Board, Coordinate, false),
-    write('AFTER'),
     {X, Y} = Coordinate,
     Up    is Y - 1,
     Down  is Y + 1,
@@ -117,14 +109,12 @@ smart_pick(Board, Coordinate, NewCoordinate) :-
    ).
 % in this clause, we are in an exhausted square:
 smart_pick(Board, Coordinate, NewCoordinate) :-
-    write('ALTERNATIVE'),
     {X, Y} = Coordinate,
     Up    is Y - 1,
     Down  is Y + 1,
     Left  is X - 1,
     Right is X + 1,
     look_at(Board, {X, Up}, RespUp),
-    write('opop1'),
     (RespUp == 'h' ->
         NewCoordinate = {X, Up}
     ;
@@ -149,28 +139,19 @@ do_random(Board, [RandX, RandY]) :-
 
 % keep calling smart_pick until we have a not exhausted coordinate
 it_smart_pick(Board, Coordinate, NewCoordinate) :-
-    write('smart pick IT'),
-    nl,
     smart_pick(Board, Coordinate, Result),
-    write('NEVER COMES HERE'),
     exhausted(Board, Result, IsExhausted),
     %% The coodinate picked is exhausted:
     (IsExhausted == true ->
-        write('EXHAUSTED'),
         it_smart_pick(Board, Result, NewCoordinate)
     ;
     %% The cordinate picked is NOT exhausted:
         look_at(Board, Result, Value),
         (Value == h ->
-            write('first scenario'),
-            nl,
             % if h we should return something surrounding which is not h
             smart_pick(Board, Result, Round2),
             NewCoordinate = Round2
         ;
-            write('coming here'),
-            write(Result),
-            nl,
             NewCoordinate = Result
         )
     ).
@@ -183,7 +164,6 @@ ai_choice(Board, GiveBack) :-
         % do random picking which is not already shot
         do_random(Board, GiveBack)
      ;
-        write('Simple ai: h found, look at surrounding places'),
         % Smart_hit gives a coord that is not exhausted
         it_smart_pick(Board, FirstH, {X, Y}),
         GiveBack = [X, Y]
