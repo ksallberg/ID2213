@@ -132,10 +132,24 @@ smart_pick(Board, Coordinate, NewCoordinate) :-
     ).
 
 %% Random shot
-%% FIXME: This can shoot at already hit places :(
+%% However, we only want to shoot at water... If there is no water left
+%% Then we shoot at [0,0]
 do_random(Board, [RandX, RandY]) :-
-    random(0, 9, RandX),
-    random(0, 9, RandY).
+    first_occurrence_of('~', Board, FirstW),
+    (FirstW == no_elem ->
+        RandX = 0,
+        RandY = 0
+    ;
+        random(0, 9, X),
+        random(0, 9, Y),
+        look_at(Board, {X,Y}, LookAtResult),
+        (LookAtResult == '~' ->
+            RandX = X,
+            RandY = Y
+        ;
+            {RandX, RandY} = FirstW
+        )
+    ).
 
 % keep calling smart_pick until we have a not exhausted coordinate
 it_smart_pick(Board, Coordinate, NewCoordinate) :-
