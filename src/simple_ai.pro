@@ -157,7 +157,7 @@ it_smart_pick(Board, Coordinate, NewCoordinate) :-
     %% The coodinate picked is exhausted:
     (IsExhausted == true ->
         write('EXHAUSTED'),
-        is_smart_pick(Board, Result, NewCoordinate)
+        it_smart_pick(Board, Result, NewCoordinate)
     ;
     %% The cordinate picked is NOT exhausted:
         look_at(Board, Result, Value),
