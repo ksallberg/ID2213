@@ -17,7 +17,7 @@ debug_board([[~,~,~,~,~,~,~,~,~,~],
              
 fleet(Fleet) :- 
         Ship1 = {
-                   [[1,1], [2,1], [3,1], [4,1], [5,1]],    % Starting position
+                   [[1,1], [2,1], [3,1],[4,1],[5,1]],    % Starting position
                    [],       % hitting points
                    [3,1]     % zhengyangs lucky point
                 },
@@ -31,9 +31,10 @@ fleet(Fleet) :-
 test_ai :-
     debug_board(Board),
     fleet(Fleet),
-    traverse(Board, Fleet, [4,2], ResultList),
+    traverse(Board, Fleet, [4,3], ResultList),
     reverse(ResultList, RevList),
     write(RevList).
+
 
 % get prediction points from start point and store in ResultList
 traverse(Board, Fleet, StartPoint, ResultList) :- 
@@ -71,18 +72,19 @@ traverse_single_point(Board, Fleet, Point, Counter, SinkList, AccResultList, Res
         Counter < 4,
         get_next_point(Point, Counter, NextPoint),
         \+ member(NextPoint, AccResultList),
-        NewAccResultList = [NextPoint|AccResultList],
         test_drop_point(NextPoint, Fleet, 'm'),
+        NewAccResultList = [NextPoint|AccResultList],
         NewCounter is Counter+1,
         traverse_single_point(Board, Fleet, Point, NewCounter, SinkList, NewAccResultList, ResultList).
 % hit point
 % hit point in SinkList
-traverse_single_point(Board, Fleet, Point, Counter, SinkList, AccResultList, ResultList) :- 
+traverse_single_point(Board, Fleet, Point, Counter, NewSinkList, AccResultList, ResultList) :- 
         Counter < 4,
         get_next_point(Point, Counter, NextPoint),
         \+ member(NextPoint, AccResultList),
         test_drop_point(NextPoint, Fleet, 'h'),
         NewAccResultList = [NextPoint|AccResultList],
+        % get NewSinkList from the next hit point and pass it when backtracking
         traverse_single_point(Board, Fleet, NextPoint, 0, NewSinkList, NewAccResultList, NextResultList),
         % get new sink list from recursion
         member(Point, NewSinkList),
@@ -90,12 +92,13 @@ traverse_single_point(Board, Fleet, Point, Counter, SinkList, AccResultList, Res
         NewCounter = 4,
         traverse_single_point(Board, Fleet, Point, NewCounter, NewSinkList, NextResultList, ResultList).
 % hit point not in SinkList
-traverse_single_point(Board, Fleet, Point, Counter, SinkList, AccResultList, ResultList) :- 
+traverse_single_point(Board, Fleet, Point, Counter, NewSinkList, AccResultList, ResultList) :- 
         Counter < 4,
         get_next_point(Point, Counter, NextPoint),
         \+ member(NextPoint, AccResultList),
         test_drop_point(NextPoint, Fleet, 'h'),
         NewAccResultList = [NextPoint|AccResultList],
+        % get NewSinkList from the next hit point and pass it when backtracking
         traverse_single_point(Board, Fleet, NextPoint, 0, NewSinkList, NewAccResultList, NextResultList),
         \+ member(Point, NewSinkList),
         % point not in new sink list continues to try other direction
