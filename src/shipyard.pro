@@ -92,19 +92,22 @@ chooseNSizedShips(N, FleetSize, Fleet, Flag, Buffer, NFleet) :-
 
 %picks a unique random element from the list and stores it to Ship
 pickRandomShip(1, N, Ships, TempList, Ship) :-
-                            random_between(1, N, Rand),
+                            %random_between(1, N, Rand),
+                            UpperBound is N + 1,
+                            random(1, UpperBound, Rand),
                             nth1(Rand, Ships, S),
                             {ShipCoords, _, _} = S,
 
                             write('Selected Ship: '), write(ShipCoords), nl,
                             %sleep(1),
+							
                             %if it evaluates to false, there is clash
                             (not(collision(ShipCoords, TempList)) ->
                                 write('clash, attempting again'),nl,
                                 pickRandomShip(1, N, Ships, TempList, NewShip),
                                 append([], NewShip, Ship)
                               ;
-                              sleep(1),
+                              %sleep(1),
                               append([], S, Ship)
                             ).
 
