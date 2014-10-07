@@ -31,25 +31,34 @@ fleet(Fleet) :-
 test_ai :-
     debug_board(Board),
     fleet(Fleet),
-    traverse(Board, Fleet, [4,3], ResultList),
+    traverse(Fleet, [4,2], SinkList, ResultList),
     reverse(ResultList, RevList),
     write(RevList).
 
 
 % get prediction points from start point and store in ResultList
-traverse(Board, Fleet, StartPoint, ResultList) :- 
-        traverse_single_point(Board, Fleet, StartPoint, 0, [], [StartPoint], ResultList).
+traverse(Fleet, StartPoint, SinkList, ResultList) :- 
+        traverse_single_point(Fleet, StartPoint, 0, [], SinkList, [StartPoint], ResultList).
 
 % border point
-traverse_single_point(Board, Fleet, Point, Counter, SinkList, AccResultList, ResultList) :- 
+traverse_single_point(Fleet, Point, Counter, AccSinkList, SinkList, AccResultList, ResultList) :- 
         Counter < 4,
         get_next_point(Point, Counter, NextPoint),
         [X,Y] = NextPoint,
         (X<0; X>9; Y<0; Y>9),
         NewCounter is Counter+1,
-        traverse_single_point(Board, Fleet, Point, NewCounter, SinkList, AccResultList, ResultList).
+        traverse_single_point(Fleet, Point, NewCounter, AccSinkList, SinkList, AccResultList, ResultList).
+% miss point
+traverse_single_point(Fleet, Point, Counter, AccSinkList, SinkList, AccResultList, ResultList) :- 
+        Counter < 4,
+        get_next_point(Point, Counter, NextPoint),
+        \+ member(NextPoint, AccResultList),
+        test_drop_point(NextPoint, Fleet, 'm'),
+        NewAccResultList = [NextPoint|AccResultList],
+        NewCounter is Counter+1,
+        traverse_single_point(Fleet, Point, NewCounter, AccSinkList, SinkList, NewAccResultList, ResultList).
 % lucky point
-traverse_single_point(Board, Fleet, Point, Counter, SinkList, AccResultList, ResultList) :- 
+traverse_single_point(Fleet, Point, Counter, AccSinkList, SinkList, AccResultList, ResultList) :- 
         Counter < 4,
         get_next_point(Point, Counter, NextPoint),
         [X,Y] = NextPoint,
@@ -57,54 +66,45 @@ traverse_single_point(Board, Fleet, Point, Counter, SinkList, AccResultList, Res
         NewAccResultList = [NextPoint|AccResultList],
         get_ship_coordinate([X,Y], Fleet, CoordinateList),
         % update sink list
-        append(SinkList, CoordinateList, NewSinkList),
+        append(AccSinkList, CoordinateList, NewAccSinkList),
         NewCounter = 4,
-        traverse_single_point(Board, Fleet, Point, NewCounter, NewSinkList, NewAccResultList, ResultList).        
+        traverse_single_point(Fleet, Point, NewCounter, NewAccSinkList, SinkList, NewAccResultList, ResultList).        
 % already tried point
-traverse_single_point(Board, Fleet, Point, Counter, SinkList, AccResultList, ResultList) :- 
+traverse_single_point(Fleet, Point, Counter, AccSinkList, SinkList, AccResultList, ResultList) :- 
         Counter < 4,
         get_next_point(Point, Counter, NextPoint),
         member(NextPoint, AccResultList),
         NewCounter is Counter+1,
-        traverse_single_point(Board, Fleet, Point, NewCounter, SinkList, AccResultList, ResultList).
-% miss point
-traverse_single_point(Board, Fleet, Point, Counter, SinkList, AccResultList, ResultList) :- 
-        Counter < 4,
-        get_next_point(Point, Counter, NextPoint),
-        \+ member(NextPoint, AccResultList),
-        test_drop_point(NextPoint, Fleet, 'm'),
-        NewAccResultList = [NextPoint|AccResultList],
-        NewCounter is Counter+1,
-        traverse_single_point(Board, Fleet, Point, NewCounter, SinkList, NewAccResultList, ResultList).
+        traverse_single_point(Fleet, Point, NewCounter, AccSinkList, SinkList, AccResultList, ResultList).
 % hit point
 % hit point in SinkList
-traverse_single_point(Board, Fleet, Point, Counter, NewSinkList, AccResultList, ResultList) :- 
+traverse_single_point(Fleet, Point, Counter, AccSinkList, SinkList, AccResultList, ResultList) :- 
         Counter < 4,
         get_next_point(Point, Counter, NextPoint),
         \+ member(NextPoint, AccResultList),
         test_drop_point(NextPoint, Fleet, 'h'),
         NewAccResultList = [NextPoint|AccResultList],
         % get NewSinkList from the next hit point and pass it when backtracking
-        traverse_single_point(Board, Fleet, NextPoint, 0, NewSinkList, NewAccResultList, NextResultList),
+        traverse_single_point(Fleet, NextPoint, 0, AccSinkList, NextSinkList, NewAccResultList, NextResultList),
         % get new sink list from recursion
-        member(Point, NewSinkList),
+        member(Point, NextSinkList),
         % point in new sink list does not try any other direction
         NewCounter = 4,
-        traverse_single_point(Board, Fleet, Point, NewCounter, NewSinkList, NextResultList, ResultList).
+        traverse_single_point(Fleet, Point, NewCounter, NextSinkList, SinkList, NextResultList, ResultList).
 % hit point not in SinkList
-traverse_single_point(Board, Fleet, Point, Counter, NewSinkList, AccResultList, ResultList) :- 
+traverse_single_point(Fleet, Point, Counter, AccSinkList, SinkList, AccResultList, ResultList) :- 
         Counter < 4,
         get_next_point(Point, Counter, NextPoint),
         \+ member(NextPoint, AccResultList),
         test_drop_point(NextPoint, Fleet, 'h'),
         NewAccResultList = [NextPoint|AccResultList],
         % get NewSinkList from the next hit point and pass it when backtracking
-        traverse_single_point(Board, Fleet, NextPoint, 0, NewSinkList, NewAccResultList, NextResultList),
-        \+ member(Point, NewSinkList),
+        traverse_single_point(Fleet, NextPoint, 0, AccSinkList, NextSinkList, NewAccResultList, NextResultList),
+        \+ member(Point, NextSinkList),
         % point not in new sink list continues to try other direction
         NewCounter is Counter+1,
-        traverse_single_point(Board, Fleet, Point, NewCounter, NewSinkList, NextResultList, ResultList).
-traverse_single_point(Board, Fleet, Point, 4, SinkList, Acc, Acc).
+        traverse_single_point(Fleet, Point, NewCounter, NextSinkList, SinkList, NextResultList, ResultList).
+traverse_single_point(Fleet, Point, 4, AccSinkList, AccSinkList, AccResultList, AccResultList).
         
 
 get_next_point(CenterPoint, 0, NextPoint) :-
