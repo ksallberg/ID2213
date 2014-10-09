@@ -51,13 +51,13 @@ ships4(Ships) :-
                     Ships = [Shipa, Shipb, Shipc, Shipd].
 
 
-createFleet(Fleet) :-
+create_fleet(Fleet) :-
                         ships3(Fleet3),
                         ships4(Fleet4),
 
-                        chooseNSizedShips(3, 4, Fleet3, 0, [], NFleet),
+                        choose_NSized_Ships(3, 4, Fleet3, 0, [], NFleet),
                         print2D(NFleet),nl,
-                        chooseNSizedShips(2, 4, Fleet4, 1, NFleet, NNFleet),
+                        choose_NSized_Ships(2, 4, Fleet4, 1, NFleet, NNFleet),
 
                         append(NFleet, NNFleet, Fleet),
                         nl,write('Printing fleet:'), nl,
@@ -65,25 +65,25 @@ createFleet(Fleet) :-
 
 
 
-chooseNSizedShips(0, FleetSize, Fleet, Flag, Buffer, NFleet) :-
+choose_NSized_Ships(0, FleetSize, Fleet, Flag, Buffer, NFleet) :-
                                 %write('empty nfleet'),nl,
                                 length(NFleet, Length),
                                 Length == 0,
                                 NFleet = [].
 
-chooseNSizedShips(N, FleetSize, Fleet, Flag, Buffer, NFleet) :-
+choose_NSized_Ships(N, FleetSize, Fleet, Flag, Buffer, NFleet) :-
                 NN is N - 1,
                 %sleep(1),
 
                 (Flag == 0 ->
-                    chooseNSizedShips(NN, FleetSize, Fleet, Flag, Buffer, Temp),
+                    choose_NSized_Ships(NN, FleetSize, Fleet, Flag, Buffer, Temp),
                     %write('temp is '),write(Temp),nl,nl,
-                    pickRandomShip(1, FleetSize, Fleet, Temp, Ship)
+                    pick_random_ship(1, FleetSize, Fleet, Temp, Ship)
                 ;
-                    chooseNSizedShips(NN, FleetSize, Fleet, Flag, Buffer, Temp),
+                    choose_NSized_Ships(NN, FleetSize, Fleet, Flag, Buffer, Temp),
                     %write('temp is '),write(Temp),nl,nl,
                     append(Temp, Buffer, NBuffer),
-                    pickRandomShip(1, FleetSize, Fleet, NBuffer, Ship)
+                    pick_random_ship(1, FleetSize, Fleet, NBuffer, Ship)
                 ),
 
                 {ShipCoords, _, _} = Ship,
@@ -91,7 +91,7 @@ chooseNSizedShips(N, FleetSize, Fleet, Flag, Buffer, NFleet) :-
                 append(Temp, [Ship], NFleet).
 
 %picks a unique random element from the list and stores it to Ship
-pickRandomShip(1, N, Ships, TempList, Ship) :-
+pick_random_ship(1, N, Ships, TempList, Ship) :-
                             %random_between(1, N, Rand),
                             UpperBound is N + 1,
                             random(1, UpperBound, Rand),
@@ -104,7 +104,7 @@ pickRandomShip(1, N, Ships, TempList, Ship) :-
                             %if it evaluates to false, there is clash
                             (not(collision(ShipCoords, TempList)) ->
                                 write('clash, attempting again'),nl,
-                                pickRandomShip(1, N, Ships, TempList, NewShip),
+                                pick_random_ship(1, N, Ships, TempList, NewShip),
                                 append([], NewShip, Ship)
                               ;
                               %sleep(1),
@@ -113,14 +113,14 @@ pickRandomShip(1, N, Ships, TempList, Ship) :-
 
 collision(Ship, []).% :- write('no clash yet'),nl.
 collision(Ship, [H|T]) :-   {ShipCoords, _, _} = H,
-                            clashFree(Ship, ShipCoords),
+                            clash_free(Ship, ShipCoords),
                             collision(Ship, T).
 
 
 %we are handling now lists with coordinates
-clashFree([], FleetShip).
-clashFree([H|T], FleetShip) :-  not(member(H, FleetShip)),
-                                clashFree(T, FleetShip).
+clash_free([], FleetShip).
+clash_free([H|T], FleetShip) :-  not(member(H, FleetShip)),
+                                clash_free(T, FleetShip).
 
 
 print2D([]) :-  nl.
