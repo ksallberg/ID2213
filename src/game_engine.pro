@@ -216,7 +216,7 @@ game_config({Human, AI}) :-
 	read(Mode),
 	game_loop(Mode, {Human, AI}).
 		
-game_loop(Mode, "stop")      :- write('Goodbye ship sinker!').
+game_loop("stop")      :- write('Goodbye ship sinker!').
 game_loop(Mode, {Human, AI}) :-
     {AIGameBoard,    AIMisses,    AIFleet}    = AI,
     {HumanGameBoard, HumanMisses, HumanFleet} = Human,
@@ -232,14 +232,12 @@ game_loop(Mode, {Human, AI}) :-
     println('This is your board, ship sinker: '),
 	print_board(HumanGameBoard), nl,
 	
-        
 	(Mode == 'a' -> 
 		sleep(1),
 		game_loop(Mode, {{HumanGameBoard, HumanMisses, HumanFleet},
                    {AINewBoard, AINewMisses, AINewFleet}})
 	;
 	
-                %manual mode
 		println('Shoot at [X,Y]:'),
 
 		read(Input),
@@ -253,7 +251,7 @@ game_loop(Mode, {Human, AI}) :-
 				  Human,
 				  {HumanNewBoard, HumanNewMisses, HumanNewFleet}),
 			nl,
-			game_loop({{HumanNewBoard, HumanNewMisses, HumanNewFleet},
+			game_loop(Mode, {{HumanNewBoard, HumanNewMisses, HumanNewFleet},
 					   {AINewBoard, AINewMisses, AINewFleet}})
 		)
 	).
