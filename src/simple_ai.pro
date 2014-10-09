@@ -1,8 +1,10 @@
+:- use_module(library(random)).
+
 %% The idea of the database AI is to randomly choose positions to shoot at
 %% until a hit is found, when a hit is found, it tries to shoot in surrounding
 %% squares until the ship is sunk. Then it begins to shoot at random places.
 
-:- use_module(library(random)).
+
 
 debug_board([[~,~,~,~,~,~,~,~,~,~],
              [~,~,~,~,~,~,~,~,~,~],
@@ -59,6 +61,7 @@ look_at(Board, {X,Y}, Value) :-
 
 look_at_board([Row|Rows], {X,Y}, 0, Value) :-
     look_at_row(Row, X, Value).
+
 look_at_board([Row|Rows], {X,Y}, RowCounter, Value) :-
     NextRowCounter is RowCounter - 1,
     look_at_board(Rows, {X,Y}, NextRowCounter, Value).
@@ -137,6 +140,7 @@ smart_pick(Board, Coordinate, NewCoordinate) :-
 do_random(Board, [RandX, RandY]) :-
     first_occurrence_of('~', Board, FirstW),
     (FirstW == no_elem ->
+		%maybe this is an indication the game ended
         RandX = 0,
         RandY = 0
     ;
@@ -159,7 +163,7 @@ it_smart_pick(Board, Coordinate, NewCoordinate) :-
     (IsExhausted == true ->
         it_smart_pick(Board, Result, NewCoordinate)
     ;
-    %% The cordinate picked is NOT exhausted:
+		%% The cordinate picked is NOT exhausted:
         look_at(Board, Result, Value),
         (Value == h ->
             % if h we should return something surrounding which is not h
@@ -173,6 +177,9 @@ it_smart_pick(Board, Coordinate, NewCoordinate) :-
 %% Interface for other modules to use, given a board, returns
 %% the choice of the AI.
 ai_choice(Board, GiveBack) :-
+
+	%not(game_ended(Board, Output)),
+	
     first_occurrence_of(h, Board, FirstH),
     (FirstH == no_elem ->
         % do random picking which is not already shot
@@ -182,3 +189,9 @@ ai_choice(Board, GiveBack) :-
         it_smart_pick(Board, FirstH, {X, Y}),
         GiveBack = [X, Y]
     ).
+	
+ai_choice(Board, Return) :-
+	Return = 'Peanuts'.
+	
+
+%% decides whether the game must stop
