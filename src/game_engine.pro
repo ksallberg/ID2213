@@ -236,24 +236,25 @@ game_loop(Mode, {Human, AI}) :-
 		sleep(1),
 		game_loop(Mode, {{HumanGameBoard, HumanMisses, HumanFleet},
                    {AINewBoard, AINewMisses, AINewFleet}})
-	),
+	;
+	
+		println('Shoot at [X,Y]:'),
 
-    println('Shoot at [X,Y]:'),
-
-    read(Input),
-    check_input(Input, ValidInput),
-    (stop == ValidInput ->
-        game_loop("stop")
-    ;
-        nl,
-        [X,Y] = ValidInput,
-        shoot([X,Y],
-              Human,
-              {HumanNewBoard, HumanNewMisses, HumanNewFleet}),
-        nl,
-        game_loop({{HumanNewBoard, HumanNewMisses, HumanNewFleet},
-                   {AINewBoard, AINewMisses, AINewFleet}})
-    ).
+		read(Input),
+		check_input(Input, ValidInput),
+		(stop == ValidInput ->
+			game_loop("stop")
+		;
+			nl,
+			[X,Y] = ValidInput,
+			shoot([X,Y],
+				  Human,
+				  {HumanNewBoard, HumanNewMisses, HumanNewFleet}),
+			nl,
+			game_loop({{HumanNewBoard, HumanNewMisses, HumanNewFleet},
+					   {AINewBoard, AINewMisses, AINewFleet}})
+		)
+	).
 	
 	
 	println(String) :- write(String),nl.
