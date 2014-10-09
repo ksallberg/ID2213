@@ -83,53 +83,44 @@ exhausted(Board, {X, Y}, Response) :-
         Response = false
     ).
 
+%% Lifting away the previous 4 level if statement to pattern matching
+smart_pick_help({X, _Y}, Match, [{Match, Up}, _, _, _],    {X, Up}).
+smart_pick_help({_X, Y}, Match, [_, {Match, Left}, _, _],  {Left, Y}).
+smart_pick_help({X, _Y}, Match, [_, _, {Match, Down}, _],  {X, Down}).
+smart_pick_help({_X, Y}, Match, [_, _, _, {Match, Right}], {Right, Y}).
+
 %% the new coordinate is not exhausted
-smart_pick(Board, Coordinate, NewCoordinate) :-
-    exhausted(Board, Coordinate, false),
-    {X, Y} = Coordinate,
+%% {X, Y} is Coordinate
+smart_pick(Board, {X, Y}, NewCoordinate) :-
+    exhausted(Board, {X, Y}, false),
     Up    is Y - 1,
     Down  is Y + 1,
     Left  is X - 1,
     Right is X + 1,
-    look_at(Board, {X, Up}, RespUp),
-   (RespUp == '~' ->
-      NewCoordinate = {X, Up}
-   ;
-      look_at(Board, {Left, Y}, RespLeft),
-      (RespLeft == '~' ->
-           NewCoordinate = {Left, Y}
-       ;
-           look_at(Board, {X, Down}, RespDown),
-           (RespDown == '~' ->
-               NewCoordinate = {X, Down}
-           ;
-               NewCoordinate = {Right, Y}
-           )
-      )
-   ).
+    look_at(Board, {X, Up},   RespUp),
+    look_at(Board, {Left, Y}, RespLeft),
+    look_at(Board, {X, Down}, RespDown),
+    look_at(Board, {X, Down}, RespRight),
+    smart_pick_help({X, Y},
+                    '~',
+                    [{RespUp, Up}, {RespLeft, Left},
+                     {RespDown, Down}, {RespRight, Right}],
+                    NewCoordinate).
 % in this clause, we are in an exhausted square:
-smart_pick(Board, Coordinate, NewCoordinate) :-
-    {X, Y} = Coordinate,
+smart_pick(Board, {X, Y}, NewCoordinate) :-
     Up    is Y - 1,
     Down  is Y + 1,
     Left  is X - 1,
     Right is X + 1,
     look_at(Board, {X, Up}, RespUp),
-    (RespUp == 'h' ->
-        NewCoordinate = {X, Up}
-    ;
-        look_at(Board, {Left, Y}, RespLeft),
-        (RespLeft == 'h' ->
-            NewCoordinate = {Left, Y}
-        ;
-            look_at(Board, {X, Down}, RespDown),
-            (RespDown == 'h' ->
-                NewCoordinate = {X, Down}
-            ;
-                NewCoordinate = {Right, Y}
-            )
-        )
-    ).
+    look_at(Board, {Left, Y}, RespLeft),
+    look_at(Board, {X, Down}, RespDown),
+    look_at(Board, {X, Down}, RespRight),
+    smart_pick_help({X, Y},
+                    'h',
+                    [{RespUp, Up}, {RespLeft, Left},
+                     {RespDown, Down}, {RespRight, Right}],
+                    NewCoordinate).
 
 %% Random shot
 %% However, we only want to shoot at water... If there is no water left
