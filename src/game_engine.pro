@@ -55,7 +55,7 @@ ocean_line(X, FullLine) :- NewX is X-1,
                            ocean_line(NewX, Next),
                            append([~], Next, FullLine).
 
-print_board([]) :- write('ok').
+print_board([]) :- nl.
 print_board([Line|Lines]) :- print_line(Line),
                              print_board(Lines).
 
@@ -222,15 +222,16 @@ game_loop(Mode, {Human, AI}) :-
     {AIGameBoard,    AISunken,    AIFleet}    = AI,
     {HumanGameBoard, HumanSunken, HumanFleet} = Human,
 		
+	%% check if the game must end
+	not(game_ended(AISunken, AIFleet)),
+	not(game_ended(HumanSunken, HumanFleet)),
+			
     %% Before the human player gets its turn, let the AI play
     ai_choice(AIGameBoard, AIInput),
     shoot(AIInput, AI, {AINewBoard, AINewSunken, AINewFleet}),
 	
     println('Hello, I am the mighty AI, this is my board so far:'),
     print_board(AINewBoard), nl,
-	
-	%% after AI shooting check if the game must end
-	not(game_ended(AINewSunken, AIFleet)),
 	
     %% AI has played. Now its the humans turn:
     println('This is your board, ship sinker: '),
@@ -255,9 +256,6 @@ game_loop(Mode, {Human, AI}) :-
 			shoot([X,Y],
 				  Human,
 				  {HumanNewBoard, HumanNewSunken, HumanNewFleet}),
-				  
-			%% after human shooting check if the game must end
-			not(game_ended(HumanNewSunken, HumanFleet)),
 			
 			nl,
 			game_loop(Mode, {{HumanNewBoard, HumanNewSunken, HumanNewFleet},
@@ -266,9 +264,13 @@ game_loop(Mode, {Human, AI}) :-
 	).
 	
 game_loop(Mode, {Human, AI}) :-
-	println('Game ended'),
-	{_, AISunken, _} = AI,
-    {_, HumanSunken, _} = Human,
+	
+	{AIBoard, AISunken, _} = AI,
+    {HumanBoard, HumanSunken, _} = Human,
+	
+	println('_______Game ended_______'),
+	print_board(AIBoard), nl,
+	print_board(HumanBoard), nl,
 	
 	length(AISunken, AIScore),
 	length(HumanSunken, HumanScore),
@@ -284,6 +286,7 @@ game_loop(Mode, {Human, AI}) :-
 game_ended(Sunken, Fleet) :-
 	length(Sunken, CountSunk),
 	length(Fleet, CountFleet),
+	
 	%%print('length of the fleet '),println(CountFleet),
 	%%print('length of the sunk '),println(CountSunk),
 	
