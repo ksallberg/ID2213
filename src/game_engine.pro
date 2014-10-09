@@ -232,6 +232,7 @@ game_loop(Mode, {Human, AI}) :-
     println('This is your board, ship sinker: '),
 	print_board(HumanGameBoard), nl,
 	
+        
 	(Mode == 'a' -> 
 		sleep(1),
 		game_loop(Mode, {{HumanGameBoard, HumanMisses, HumanFleet},
