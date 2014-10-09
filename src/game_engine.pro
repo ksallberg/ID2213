@@ -239,6 +239,7 @@ game_loop(Mode, {Human, AI}) :-
                    {AINewBoard, AINewMisses, AINewFleet}})
 	;
 	
+                %manual mode
 		println('Shoot at [X,Y]:'),
 
 		read(Input),
