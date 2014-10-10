@@ -109,6 +109,8 @@ smart_pick(Board, {X, Y}, NewCoordinate) :-
                     [{RespUp, Up}, {RespLeft, Left},
                      {RespDown, Down}, {RespRight, Right}],
                     NewCoordinate).
+					
+					
 % in this clause, we are in an exhausted square:
 smart_pick(Board, {X, Y}, NewCoordinate) :-
     Up    is Y - 1,
@@ -148,8 +150,10 @@ do_random(Board, [RandX, RandY]) :-
 
 % keep calling smart_pick until we have a not exhausted coordinate
 it_smart_pick(Board, Coordinate, NewCoordinate) :-
+
     smart_pick(Board, Coordinate, Result),
     exhausted(Board, Result, IsExhausted),
+	
     %% The coodinate picked is exhausted:
     (IsExhausted == true ->
         it_smart_pick(Board, Result, NewCoordinate)
@@ -168,8 +172,6 @@ it_smart_pick(Board, Coordinate, NewCoordinate) :-
 %% Interface for other modules to use, given a board, returns
 %% the choice of the AI.
 ai_choice(Board, GiveBack) :-
-
-	%not(game_ended(Board, Output)),
 	
     first_occurrence_of(h, Board, FirstH),
     (FirstH == no_elem ->
@@ -181,8 +183,3 @@ ai_choice(Board, GiveBack) :-
         GiveBack = [X, Y]
     ).
 	
-ai_choice(Board, Return) :-
-	Return = 'Peanuts'.
-	
-
-%% decides whether the game must stop
