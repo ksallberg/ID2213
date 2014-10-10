@@ -67,6 +67,10 @@ exhausted(Board, Coord, true) :-
     Right \= '~'.
 exhausted(_, _, false).
 
+out_of_scope({X, Y}, true) :-
+    (X < 0, X > 9, Y < 0, Y > 9).
+out_of_scope(_, false).
+
 %% Lifting away the previous 4 level if statement to pattern matching
 smart_pick_help({X, _Y}, Match, [{Match, Up}, _, _, _],    {X, Up}).
 smart_pick_help({_X, Y}, Match, [_, {Match, Left}, _, _],  {Left, Y}).
@@ -86,7 +90,13 @@ smart_pick(Board, {X, Y}, NewCoordinate) :-
     directions({X, Y}, {Up, Down, Left, Right}),
     look_at_directions(Board, {X, Y}, {RUp, RLeft, RDown, RRight}),
     SendList = [{RUp, Up}, {RLeft, Left}, {RDown, Down}, {RRight, Right}],
-    smart_pick_help({X, Y}, 'h', SendList, NewCoordinate).
+    smart_pick_help({X, Y}, 'h', SendList, Result),
+    out_of_scope(Result, IsOutside),
+    (IsOutside == true ->
+        first_occurrence_of('~', Board, NewCoordinate)
+    ;
+        NewCoordinate = Result
+    ).
 
 %% Random shot
 %% However, we only want to shoot at water... If there is no water left
@@ -111,19 +121,18 @@ do_random(Board, [RandX, RandY]) :-
 
 % keep calling smart_pick until we have a not exhausted coordinate
 it_smart_pick(Board, Coordinate, NewCoordinate) :-
-
     smart_pick(Board, Coordinate, Result),
     %% The coodinate picked is exhausted:
     exhausted(Board, Result, true),
     it_smart_pick(Board, Result, NewCoordinate).
-	
+
 % The coordinate is not exhausted, and we are looking at a 'h':
 it_smart_pick(Board, Coordinate, NewCoordinate) :-
     smart_pick(Board, Coordinate, Result),
     %% The cordinate picked is NOT exhausted:
     look_at(Board, Result, 'h'),
     smart_pick(Board, Result, NewCoordinate).
-	
+
 % Not exhausted, and not looking at a 'h'
 it_smart_pick(Board, Coordinate, NewCoordinate) :-
     smart_pick(Board, Coordinate, NewCoordinate).
@@ -133,11 +142,9 @@ it_smart_pick(Board, Coordinate, NewCoordinate) :-
 ai_choice(Board, GiveBack) :-
     first_occurrence_of(h, Board, no_elem),
     do_random(Board, GiveBack).
-	
-	
+
 % Smart_hit gives a coord that is not exhausted
 ai_choice(Board, GiveBack) :-
     first_occurrence_of(h, Board, FirstH),
     it_smart_pick(Board, FirstH, {X, Y}),
     GiveBack = [X, Y].
-
