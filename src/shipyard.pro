@@ -55,7 +55,7 @@ create_fleet(Fleet) :-
                         ships3(Fleet3),
                         ships4(Fleet4),
 
-                        choose_NSized_Ships(3, 4, Fleet3, 0, [], NFleet),
+                        choose_NSized_Ships(1, 4, Fleet3, 0, [], NFleet),
                         print2D(NFleet),nl,
                         choose_NSized_Ships(2, 4, Fleet4, 1, NFleet, NNFleet),
 
