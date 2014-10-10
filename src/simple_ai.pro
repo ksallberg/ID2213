@@ -68,6 +68,13 @@ look_at_row([Head|Tail], X, Element) :-
     NextX is X - 1,
     look_at_row(Tail, NextX, Element).
 
+look_at_directions(Board, {X, Y}, {RespUp, RespLeft, RespDown, RespRight}) :-
+    directions({X, Y}, {Up, Down, Left, Right}),
+    look_at(Board, {X, Up},    RespUp),
+    look_at(Board, {Left, Y},  RespLeft),
+    look_at(Board, {X, Down},  RespDown),
+    look_at(Board, {Right, Y}, RespRight).
+
 directions({X, Y}, {Up, Down, Left, Right}) :-
     Up    is Y - 1,
     Down  is Y + 1,
@@ -75,12 +82,8 @@ directions({X, Y}, {Up, Down, Left, Right}) :-
     Right is X + 1.
 
 exhausted(Board, {X, Y}, Response) :-
-    directions({X, Y}, {Up, Down, Left, Right}),
-    look_at(Board, {X,     Up},   Resp1),
-    look_at(Board, {X,     Down}, Resp2),
-    look_at(Board, {Left,  Y},    Resp3),
-    look_at(Board, {Right, Y},    Resp4),
-    ((Resp1 \= '~', Resp2 \= '~', Resp3 \= '~', Resp4 \= '~') ->
+    look_at_directions(Board, {X, Y}, {Up, Left, Down, Right}),
+    ((Up \= '~', Left \= '~', Down \= '~', Right \= '~') ->
         Response = true
     ;
         Response = false
@@ -97,27 +100,15 @@ smart_pick_help({_X, Y}, Match, [_, _, _, {Match, Right}], {Right, Y}).
 smart_pick(Board, {X, Y}, NewCoordinate) :-
     exhausted(Board, {X, Y}, false),
     directions({X, Y}, {Up, Down, Left, Right}),
-    look_at(Board, {X, Up},    RespUp),
-    look_at(Board, {Left, Y},  RespLeft),
-    look_at(Board, {X, Down},  RespDown),
-    look_at(Board, {Right, Y}, RespRight),
-    smart_pick_help({X, Y},
-                    '~',
-                    [{RespUp, Up}, {RespLeft, Left},
-                     {RespDown, Down}, {RespRight, Right}],
-                    NewCoordinate).
+    look_at_directions(Board, {X, Y}, {RUp, RLeft, RDown, RRight}),
+    SendList = [{RUp, Up}, {RLeft, Left}, {RDown, Down}, {RRight, Right}],
+    smart_pick_help({X, Y}, '~', SendList, NewCoordinate).
 % in this clause, we are in an exhausted square:
 smart_pick(Board, {X, Y}, NewCoordinate) :-
     directions({X, Y}, {Up, Down, Left, Right}),
-    look_at(Board, {X, Up},    RespUp),
-    look_at(Board, {Left, Y},  RespLeft),
-    look_at(Board, {X, Down},  RespDown),
-    look_at(Board, {Right, Y}, RespRight),
-    smart_pick_help({X, Y},
-                    'h',
-                    [{RespUp, Up}, {RespLeft, Left},
-                     {RespDown, Down}, {RespRight, Right}],
-                    NewCoordinate).
+    look_at_directions(Board, {X, Y}, {RUp, RLeft, RDown, RRight}),
+    SendList = [{RUp, Up}, {RLeft, Left}, {RDown, Down}, {RRight, Right}],
+    smart_pick_help({X, Y}, 'h', SendList, NewCoordinate).
 
 %% Random shot
 %% However, we only want to shoot at water... If there is no water left
