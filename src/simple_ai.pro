@@ -116,12 +116,14 @@ it_smart_pick(Board, Coordinate, NewCoordinate) :-
     %% The coodinate picked is exhausted:
     exhausted(Board, Result, true),
     it_smart_pick(Board, Result, NewCoordinate).
+	
 % The coordinate is not exhausted, and we are looking at a 'h':
 it_smart_pick(Board, Coordinate, NewCoordinate) :-
     smart_pick(Board, Coordinate, Result),
     %% The cordinate picked is NOT exhausted:
     look_at(Board, Result, 'h'),
     smart_pick(Board, Result, NewCoordinate).
+	
 % Not exhausted, and not looking at a 'h'
 it_smart_pick(Board, Coordinate, NewCoordinate) :-
     smart_pick(Board, Coordinate, NewCoordinate).
@@ -131,10 +133,11 @@ it_smart_pick(Board, Coordinate, NewCoordinate) :-
 ai_choice(Board, GiveBack) :-
     first_occurrence_of(h, Board, no_elem),
     do_random(Board, GiveBack).
+	
+	
 % Smart_hit gives a coord that is not exhausted
 ai_choice(Board, GiveBack) :-
     first_occurrence_of(h, Board, FirstH),
     it_smart_pick(Board, FirstH, {X, Y}),
     GiveBack = [X, Y].
-%% decides whether the game must stop
-ai_choice(Board, 'Peanuts').
+

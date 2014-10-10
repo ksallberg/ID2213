@@ -205,12 +205,14 @@ game_loop(Mode, {Human, AI}) :-
     {AIGameBoard,    AISunken,    AIFleet}    = AI,
     {HumanGameBoard, HumanSunken, HumanFleet} = Human,
 
+	%% Before the human player gets its turn, let the AI play
+    ai_choice(AIGameBoard, AIInput),print('computer strikes at'), println(AIInput),
+	
 	%% check if the game must end
 	\+ game_ended(AISunken, AIFleet),
 	\+ game_ended(HumanSunken, HumanFleet),
 
-    %% Before the human player gets its turn, let the AI play
-    ai_choice(AIGameBoard, AIInput),
+    
     shoot(AIInput, AI, {AINewBoard, AINewSunken, AINewFleet}),
 
     println('Hello, I am the mighty AI, this is my board so far:'),
@@ -275,4 +277,5 @@ game_ended(Sunken, Fleet) :-
 
 	CountSunk == CountFleet.
 
+print(String) :- write(String).
 println(String) :- write(String),nl.

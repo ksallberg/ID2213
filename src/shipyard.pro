@@ -124,7 +124,7 @@ clash_free([H|T], FleetShip) :-  not(member(H, FleetShip)),
 
 
 print2D([]) :-  nl.
-print2D([Row|Rest]) :-  print(Row),
+print2D([Row|Rest]) :-  print1D(Row),
                         print2D(Rest).
 
-print({Ship, _, _}) :- write(Ship),nl.
+print1D({Ship, _, _}) :- write(Ship),nl.
