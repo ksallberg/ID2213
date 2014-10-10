@@ -68,16 +68,12 @@ create_state(InitialBoard, Player) :-
 		fleet(Fleet),
         Player = {InitialBoard, [], Fleet}.
 
-
-
 %% Starting point
 start :-
         new_ocean(10, InitialBoard),
         create_state(InitialBoard, HumanSlave),
         create_state(InitialBoard, ComputerLord),
         game_config({HumanSlave, ComputerLord}).
-
-
 
 %% take(3, [a,b,c,d], [], Y). :: Y = [a,b,c] ?
 take(0,    In,    Out, Out).
@@ -108,18 +104,16 @@ merge(Before, Wanted, After, Result) :-
 check_shoot([X,Y], [H|T], 's', NewFleet) :-
         check_luckyPoint([X,Y], H, 's', NewShip),
         NewFleet = [NewShip|T].
-		
+
 check_shoot([X,Y], [H|T], 'h', NewFleet) :-
         check_hit([X,Y], H, 'h', NewShip),
         NewFleet = [NewShip|T].
-		
+
 check_shoot([X,Y], [H|T], Result, [H|NewFleet]) :-
         check_miss([X,Y], H),
         check_shoot([X,Y], T, Result, NewFleet).
-		
+
 check_shoot([X,Y], [], 'm', []).
-
-
 
 % check_luckyPoint([X,Y], Ship, Result, NewShip)
 % if [X,Y] is lucky point, return true and update ship state, Result = 's'
@@ -129,8 +123,6 @@ check_luckyPoint([X,Y], Ship, 's', NewShip) :-
         NewHitList = CoordinateList,
         NewShip = {CoordinateList,NewHitList,LuckyPoint}.
 
-		
-		
 % check_hit([X,Y], Ship, Result, NewShip)
 % if [X,Y] is hit, return true and update ship state, Result = 'h'
 check_hit([X,Y], Ship, 'h', NewShip) :-
@@ -140,22 +132,18 @@ check_hit([X,Y], Ship, 'h', NewShip) :-
         append(HitList,[X,Y], NewHitList),
         NewShip = {CoordinateList,NewHitList,LuckyPoint}.
 
-		
-		
 % check_hit([X,Y], Ship)
 % if [X,Y] is missing, return true
 check_miss([X,Y], Ship) :-
         {CoordinateList,HitList,LuckyPoint} = Ship,
         \+ member([X,Y], CoordinateList).
 
-		
 % update the point [X,Y] on the board with the Result character('s', 'h', 'm')
 update_point([X,Y], Result, Board, NewBoard) :-
         split(Y, Board, BeforeLines, WantedLine, AfterLines),
         split(X, WantedLine, BeforeCells, WantedCell, AfterCells),
         merge(BeforeCells, Result, AfterCells, NewLine),
         merge(BeforeLines, NewLine, AfterLines, NewBoard).
-
 
 % if the ship sinks, update all the points in the ship coordinate list to 's'
 update_sink_ship([H|T], Result, BoardIn, BoardOut) :-
@@ -164,20 +152,17 @@ update_sink_ship([H|T], Result, BoardIn, BoardOut) :-
         update_sink_ship(T, Result, BoardIn, Board2).
 update_sink_ship([], Result, Board, Board).
 
-
-
 % get the coordinate list of the ship which contains [X,Y]
 get_ship_coordinate([X,Y], [H|T], CoordinateList) :-
         {CoordinateList, _, _} = H,
         member([X,Y], CoordinateList).
-		
+
 get_ship_coordinate([X,Y], [H|T], CoordinateList2) :-
         {CoordinateList1, _, _} = H,
         \+ member([X,Y], CoordinateList1),
         get_ship_coordinate([X,Y], T, CoordinateList2).
-		
-get_ship_coordinate([X,Y], [], []).
 
+get_ship_coordinate([X,Y], [], []).
 
 % shoot([X,Y], Player, UpdatedPlayer)
 % the overall shoot function
@@ -186,20 +171,19 @@ shoot([X,Y], {Board, AISunken, Fleet}, {NewBoard, NewSunkenShips, NewFleet}) :-
               get_ship_coordinate([X,Y], Fleet, CoordinateList),
               update_sink_ship(CoordinateList, 's', Board, NewBoard),
 			  NewSunkenShips = [S|AISunken].
-			  
+
 shoot([X,Y], {Board, [], Fleet}, {NewBoard, [], NewFleet}) :-
               check_shoot([X,Y], Fleet, 'h', NewFleet),
               update_point([X,Y], 'h', Board, NewBoard).
-			  
+
 shoot([X,Y], {Board, [], Fleet}, {NewBoard, [], NewFleet}) :-
               check_shoot([X,Y], Fleet, 'm', NewFleet),
               update_point([X,Y], 'm', Board, NewBoard).
 
-			  
+
 %test the validity of input
 valid_input(stop).
 valid_input([X,Y]) :- number(X), number(Y), X > 0 , Y > 0.
-
 
 %loop until valid input is given
 check_input(s, [0,0]).
@@ -211,39 +195,38 @@ check_input(Input, Valid) :-
         read(NewInput),
         check_input(NewInput, Valid).
 
-
 game_config({Human, AI}) :-
 	println('Hello human slave, do you want automatic (a), or manual (m) play mode?'),
 	read(Mode),
 	game_loop(Mode, {Human, AI}).
-		
+
 game_loop("stop")      :- write('Goodbye ship sinker!').
 game_loop(Mode, {Human, AI}) :-
     {AIGameBoard,    AISunken,    AIFleet}    = AI,
     {HumanGameBoard, HumanSunken, HumanFleet} = Human,
-		
+
 	%% check if the game must end
-	not(game_ended(AISunken, AIFleet)),
-	not(game_ended(HumanSunken, HumanFleet)),
-			
+	\+ game_ended(AISunken, AIFleet),
+	\+ game_ended(HumanSunken, HumanFleet),
+
     %% Before the human player gets its turn, let the AI play
     ai_choice(AIGameBoard, AIInput),
     shoot(AIInput, AI, {AINewBoard, AINewSunken, AINewFleet}),
-	
+
     println('Hello, I am the mighty AI, this is my board so far:'),
     print_board(AINewBoard), nl,
-	
+
     %% AI has played. Now its the humans turn:
     println('This is your board, ship sinker: '),
 	print_board(HumanGameBoard), nl,
-	
-	(Mode == a -> 
+
+	(Mode == a ->
 		%% automatic mode, the computer keeps shooting and the slave (human) watches
 		%sleep(1),
 		game_loop(Mode, {{HumanGameBoard, HumanSunken, HumanFleet},
                    {AINewBoard, AINewSunken, AINewFleet}})
 	;
-	
+
 		println('Shoot at [X,Y]:'),
 
 		read(Input),
@@ -256,42 +239,40 @@ game_loop(Mode, {Human, AI}) :-
 			shoot([X,Y],
 				  Human,
 				  {HumanNewBoard, HumanNewSunken, HumanNewFleet}),
-			
+
 			nl,
 			game_loop(Mode, {{HumanNewBoard, HumanNewSunken, HumanNewFleet},
 					   {AINewBoard, AINewSunken, AINewFleet}})
 		)
 	).
-	
+
 game_loop(Mode, {Human, AI}) :-
-	
+
 	{AIBoard, AISunken, _} = AI,
     {HumanBoard, HumanSunken, _} = Human,
-	
+
 	println('_______Game ended_______'),
 	print_board(AIBoard), nl,
 	print_board(HumanBoard), nl,
-	
+
 	length(AISunken, AIScore),
 	length(HumanSunken, HumanScore),
-	
+
 	(AIScore > HumanScore ->
 		println('You lose ship sinker')
 	;
 		println('You win ship sinker')
 	),
-	
+
 	game_loop("stop").
-	
+
 game_ended(Sunken, Fleet) :-
 	length(Sunken, CountSunk),
 	length(Fleet, CountFleet),
-	
+
 	%%print('length of the fleet '),println(CountFleet),
 	%%print('length of the sunk '),println(CountSunk),
-	
+
 	CountSunk == CountFleet.
-	
+
 println(String) :- write(String),nl.
-		
-print(String) :- write(String).
