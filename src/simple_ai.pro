@@ -3,29 +3,6 @@
 %% The idea of the database AI is to randomly choose positions to shoot at
 %% until a hit is found, when a hit is found, it tries to shoot in surrounding
 %% squares until the ship is sunk. Then it begins to shoot at random places.
-debug_board([[~,~,~,~,~,~,~,~,~,~],
-             [~,~,~,~,~,~,~,~,~,~],
-             [~,~,~,~,~,~,~,~,~,~],
-             [~,~,~,~,~,~,~,~,~,~],
-             [~,~,~,~,~,~,~,~,~,~],
-             [~,~,~,~,~,~,~,~,~,~],
-             [~,~,~,~,~,~,~,~,~,~],
-             [~,~,~,~,~,~,~,~,~,~],
-             [~,~,~,~,~,~,~,~,~,~],
-             [~,~,~,~,~,~,~,~,~,~],
-             [~,~,~,~,~,~,~,~,~,~]]).
-
-test_me :-
-    debug_board(Board),
-    first_occurrence_of(h, Board, Y),
-    look_at(Board, {4, 5}, Elem),
-    exhausted(Board, {4, 4}, IsExhausted),
-    write(IsExhausted).
-
-test_water :-
-    debug_board(Board),
-    first_occurrence_of(~, Board, X),
-    write(X).
 
 %% The element we look for is the head of row, return counter :)
 occurence_in_row(_,       [],              _,         no_elem).
@@ -81,13 +58,14 @@ directions({X, Y}, {Up, Down, Left, Right}) :-
     Left  is X - 1,
     Right is X + 1.
 
-exhausted(Board, {X, Y}, Response) :-
-    look_at_directions(Board, {X, Y}, {Up, Left, Down, Right}),
-    ((Up \= '~', Left \= '~', Down \= '~', Right \= '~') ->
-        Response = true
-    ;
-        Response = false
-    ).
+%% a coordinate is exhausted if neither of up, left, down, right are water
+exhausted(Board, Coord, true) :-
+    look_at_directions(Board, Coord, {Up, Left, Down, Right}),
+    Up    \= '~',
+    Left  \= '~',
+    Down  \= '~',
+    Right \= '~'.
+exhausted(_, _, false).
 
 %% Lifting away the previous 4 level if statement to pattern matching
 smart_pick_help({X, _Y}, Match, [{Match, Up}, _, _, _],    {X, Up}).
@@ -134,35 +112,28 @@ do_random(Board, [RandX, RandY]) :-
 % keep calling smart_pick until we have a not exhausted coordinate
 it_smart_pick(Board, Coordinate, NewCoordinate) :-
     smart_pick(Board, Coordinate, Result),
-    exhausted(Board, Result, IsExhausted),
     %% The coodinate picked is exhausted:
-    (IsExhausted == true ->
-        it_smart_pick(Board, Result, NewCoordinate)
-    ;
-        %% The cordinate picked is NOT exhausted:
-        look_at(Board, Result, Value),
-        (Value == h ->
-            % if h we should return something surrounding which is not h
-            smart_pick(Board, Result, Round2),
-            NewCoordinate = Round2
-        ;
-            NewCoordinate = Result
-        )
-    ).
+    exhausted(Board, Result, true),
+    it_smart_pick(Board, Result, NewCoordinate).
+% The coordinate is not exhausted, and we are looking at a 'h':
+it_smart_pick(Board, Coordinate, NewCoordinate) :-
+    smart_pick(Board, Coordinate, Result),
+    %% The cordinate picked is NOT exhausted:
+    look_at(Board, Result, 'h'),
+    smart_pick(Board, Result, NewCoordinate).
+% Not exhausted, and not looking at a 'h'
+it_smart_pick(Board, Coordinate, NewCoordinate) :-
+    smart_pick(Board, Coordinate, NewCoordinate).
 
 %% Interface for other modules to use, given a board, returns
 %% the choice of the AI.
 ai_choice(Board, GiveBack) :-
-    %not(game_ended(Board, Output)),
+    first_occurrence_of(h, Board, no_elem),
+    do_random(Board, GiveBack).
+% Smart_hit gives a coord that is not exhausted
+ai_choice(Board, GiveBack) :-
     first_occurrence_of(h, Board, FirstH),
-    (FirstH == no_elem ->
-        % do random picking which is not already shot
-        do_random(Board, GiveBack)
-     ;
-        % Smart_hit gives a coord that is not exhausted
-        it_smart_pick(Board, FirstH, {X, Y}),
-        GiveBack = [X, Y]
-    ).
+    it_smart_pick(Board, FirstH, {X, Y}),
+    GiveBack = [X, Y].
 %% decides whether the game must stop
-ai_choice(Board, Return) :-
-    Return = 'Peanuts'.
+ai_choice(Board, 'Peanuts').
