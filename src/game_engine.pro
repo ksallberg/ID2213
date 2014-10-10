@@ -169,16 +169,16 @@ game_loop(Mode, {Human, AI}, NO) :-
 	game_loop("stop").
 
 %% If someone wins (YES), then the game must not continue (NO)
-flat_response(YES, _, NO). % :- Response = NO.
-flat_response(_, YES, NO). % :- Response = NO.
-flat_response(NO, NO, YES). % :- Response = YES.
+flat_response(YES, _, NO).
+flat_response(_, YES, NO).
+flat_response(NO, NO, YES).
 
 game_ended(Sunken, Fleet, Response) :-
 	length(Sunken, CountSunk),
 	length(Fleet, CountFleet),
 
-	print('length of the fleet '),println(CountFleet),
-	print('length of the sunk '),println(CountSunk),
+	%%print('length of the fleet '),println(CountFleet),
+	%%print('length of the sunk '),println(CountSunk),
 
 	CountSunk == CountFleet,
 	Response = YES.
