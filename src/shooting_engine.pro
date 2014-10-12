@@ -92,4 +92,4 @@ update_point([X,Y], Result, Board, NewBoard) :-
         merge(BeforeLines, NewLine, AfterLines, NewBoard).
 		
 		
-%%********************* END OF SHOOTING HANDLING FUNCTIONS ******************	
+%%********************* END OF SHOOTING HANDLING FUNCTIONS ******************
