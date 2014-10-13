@@ -120,7 +120,7 @@ game_loop(Mode, {Human, AI}, 'YES') :-
 
 	(Mode == a ->
 		%% automatic mode, the computer keeps shooting and the slave (human) watches
-		sleep(1),
+		%sleep(1),
 		game_loop(Mode, {{HumanGameBoard, HumanSunk, HumanFleet},
                    {AINewBoard, AINewSunk, AINewFleet}}, AiContinue)
 	;
