@@ -8,7 +8,7 @@
 % A Player is represented as:
 % {
 %	GameBoard,
-%	[SunkShips],
+%	SunkCounter,
 %   [Ships]
 % }
 
@@ -35,11 +35,11 @@ fleet(Fleet) :-
         Ship1 = {
                    [[3,2],[4,2],[5,2]],    % Ship positions
                    [],                       % hit points? FIXME whats this?
-                   [[4,2],0]           % zhengyangs lucky point
+                   [4,2]           % zhengyangs lucky point
                 },
         Ship2 = {  [[4,4],[5,4],[6,4]],
                    [],
-                   [[5,4],0]
+                   [5,4]
                 },
         Fleet = [Ship1, Ship2].
 
@@ -67,7 +67,7 @@ print_line([Char|Chars]) :- write(Char),
 create_state(InitialBoard, Player) :-
         %create_fleet(Fleet),
 		fleet(Fleet),
-        Player = {InitialBoard, [], Fleet}.
+        Player = {InitialBoard, 0, Fleet}.
 
 %% Starting point
 start :-
@@ -79,7 +79,7 @@ start :-
 
 %test the validity of input
 valid_input(q).
-valid_input([X,Y]) :- number(X), number(Y), X > 0 , Y > 0.
+valid_input([X,Y]) :- number(X), number(Y), X >= 0 , Y >= 0.
 
 %loop until valid input is given
 check_input(s, [0,0]).
@@ -103,18 +103,17 @@ game_loop("q")      :- write('Goodbye ship sinker!').
 game_loop(Mode, {Human, AI}, 'YES') :-
     {AIGameBoard,    AISunk,    AIFleet}    = AI,
     {HumanGameBoard, HumanSunk, HumanFleet} = Human,
-
-	%% check if the game must end
-	game_ended(AISunk, AIFleet, AiWins),
-	game_ended(HumanSunk, HumanFleet, HumanWins),
-
-	flatten_response(AiWins, HumanWins, Continue),
-	
+		
     %% Before the human player gets its turn, let the AI play
     ai_choice(AIGameBoard, AIInput),
 	
     shoot(AIInput, AI, {AINewBoard, AINewSunk, AINewFleet}),
-
+	game_ended(AINewSunk, AIFleet, AiWins),
+	ai_response(AiWins, Continue),
+	
+	write('AIWINS IS '),println(AiWins),
+	write('RESPONSE IS '),println(Continue),
+	
     println('Hello, I am the mighty AI, this is my board so far:'),
     print_board(AINewBoard), nl,
 
@@ -124,7 +123,7 @@ game_loop(Mode, {Human, AI}, 'YES') :-
 
 	(Mode == a ->
 		%% automatic mode, the computer keeps shooting and the slave (human) watches
-		sleep(1),
+		%sleep(1),
 		game_loop(Mode, {{HumanGameBoard, HumanSunk, HumanFleet},
                    {AINewBoard, AINewSunk, AINewFleet}}, Continue)
 	;
@@ -141,7 +140,13 @@ game_loop(Mode, {Human, AI}, 'YES') :-
 			shoot([X,Y],
 				  Human,
 				  {HumanNewBoard, HumanNewSunk, HumanNewFleet}),
-
+				  
+			game_ended(HumanNewSunk, HumanFleet, HumanWins),
+			write('HUMANWINS IS '),println(HumanWins),
+			
+			human_response(HumanWins, Continue),
+			write('RESPONSE IS '),println(Continue),
+			
 			nl,
 			game_loop(Mode, {{HumanNewBoard, HumanNewSunk, HumanNewFleet},
 					   {AINewBoard, AINewSunk, AINewFleet}}, Continue)
@@ -158,10 +163,10 @@ game_loop(Mode, {Human, AI}, 'NO') :-
 	print_board(AIBoard), nl,
 	print_board(HumanBoard), nl,
 
-	length(AISunk, AIScore),
-	length(HumanSunk, HumanScore),
+	%length(AISunk, AIScore),
+	%length(HumanSunk, HumanScore),
 
-	(AIScore > HumanScore ->
+	(AISunk > HumanSunk ->
 		println('You lose ship sinker')
 	;
 		println('You win ship sinker')
@@ -170,23 +175,26 @@ game_loop(Mode, {Human, AI}, 'NO') :-
 	game_loop("q").
 
 %% If someone wins (YES), then the game must not continue (NO)
-flatten_response('YES', _, 'NO').
-flatten_response(_, 'YES', 'NO').
-flatten_response('NO', 'NO', 'YES').
+ai_response('YES', 'NO').
+ai_response('NO', 'YES').
+human_response('YES', 'NO').
+human_response('NO', 'YES').
 
 game_ended(Sunk, Fleet, Response) :-
-	length(Sunk, CountSunk),
+	%length(Sunk, CountSunk),
 	length(Fleet, CountFleet),
 
-	%%print(': '),print('length of the fleet '),println(CountFleet),
-	%%print(': '),print('length of the sunk '),println(CountSunk),
+	write(': '),write('length of the fleet '),println(CountFleet),
+	write(': '),write('length of the sunk '),println(Sunk),
 
-	CountSunk == CountFleet,
+	Sunk == CountFleet,
+	println('THE GAME MUST END'),
 	Response = 'YES'.
 	
 game_ended(Sunk, Fleet, Response) :-
+	length(Fleet, CountFleet),
+	Sunk \= CountFleet,
 	Response = 'NO'.
 	
 
-print(String) :- write(String).
 println(String) :- write(String),nl.
