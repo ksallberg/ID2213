@@ -141,7 +141,7 @@ game_loop(Mode, {Human, AI}, 'YES') :-
 			game_ended(HumanNewSunk, HumanFleet, HumanWins),			
 			human_response(HumanWins, HumanContinue),
 			
-			decide_continue(AiContinue, HumanContinue, FinalContinue),
+			decide_to_continue(AiContinue, HumanContinue, FinalContinue),
 			
 			game_loop(Mode, {{HumanNewBoard, HumanNewSunk, HumanNewFleet},
 					   {AINewBoard, AINewSunk, AINewFleet}}, FinalContinue)
@@ -175,9 +175,9 @@ ai_response('NO', 'YES').
 human_response('YES', 'NO').
 human_response('NO', 'YES').
 
-decide_continue('NO', _, 'NO').
-decide_continue(_, 'NO', 'NO').
-decide_continue('YES', 'YES', 'YES').
+decide_to_continue('NO', _, 'NO').
+decide_to_continue(_, 'NO', 'NO').
+decide_to_continue('YES', 'YES', 'YES').
 
 
 game_ended(Sunk, Fleet, Response) :-
