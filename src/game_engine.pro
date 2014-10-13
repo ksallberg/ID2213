@@ -45,7 +45,7 @@ fleet(Fleet) :-
 
 new_ocean(Size, Board) :- ocean_of_size(Size, Size, Board).
 
-ocean_of_size(0, Size, [])    :- [].
+ocean_of_size(0, _Size, [])   :- [].
 ocean_of_size(X, Size, Board) :- NewX is X-1,
                                  ocean_of_size(NewX, Size, Next),
                                  ocean_line(Size, ThisLine),
@@ -96,21 +96,21 @@ game_config({Human, AI}) :-
 	read(Mode),
 	game_loop(Mode, {Human, AI}, 'YES').
 
-	
+
 %% ********************** THE MIGHTY CORE ENGINE ************************
 
 game_loop("q")      :- write('Goodbye ship sinker!').
 game_loop(Mode, {Human, AI}, 'YES') :-
-    {AIGameBoard,    AISunk,    AIFleet}    = AI,
+    {AIGameBoard,    _AISunk,    AIFleet}    = AI,
     {HumanGameBoard, HumanSunk, HumanFleet} = Human,
-		
+
     %% Before the human player gets its turn, let the AI play
     ai_choice(AIGameBoard, AIInput),
-	
+
     shoot(AIInput, AI, {AINewBoard, AINewSunk, AINewFleet}),
 	game_ended(AINewSunk, AIFleet, AiWins),
 	ai_response(AiWins, AiContinue),
-		
+
     println('Hello, I am the mighty AI, this is my board so far:'),
     print_board(AINewBoard), nl,
 
@@ -137,19 +137,19 @@ game_loop(Mode, {Human, AI}, 'YES') :-
 			shoot([X,Y],
 				  Human,
 				  {HumanNewBoard, HumanNewSunk, HumanNewFleet}),
-				  
-			game_ended(HumanNewSunk, HumanFleet, HumanWins),			
+
+			game_ended(HumanNewSunk, HumanFleet, HumanWins),
 			human_response(HumanWins, HumanContinue),
-			
+
 			decide_to_continue(AiContinue, HumanContinue, FinalContinue),
-			
+
 			game_loop(Mode, {{HumanNewBoard, HumanNewSunk, HumanNewFleet},
 					   {AINewBoard, AINewSunk, AINewFleet}}, FinalContinue)
 		)
 	).
 
 %% The last parameter is NO, that is the game has to end
-game_loop(Mode, {Human, AI}, 'NO') :-
+game_loop(_Mode, {Human, AI}, 'NO') :-
 
 	{AIBoard, AISunk, _} = AI,
     {HumanBoard, HumanSunk, _} = Human,
@@ -185,11 +185,11 @@ game_ended(Sunk, Fleet, Response) :-
 
 	Sunk == CountFleet,
 	Response = 'YES'.
-	
+
 game_ended(Sunk, Fleet, Response) :-
 	length(Fleet, CountFleet),
 	Sunk \= CountFleet,
 	Response = 'NO'.
-	
+
 
 println(String) :- write(String),nl.

@@ -1,3 +1,5 @@
+:- use_module(library(lists)).
+
 ships3(Ships) :-
     Shipa = {
              [[0,0], [0,1], [0,2]],
@@ -52,7 +54,7 @@ ships4(Ships) :-
 
 create_fleet(Fleet) :-
     ships3(Fleet3),
-    ships4(Fleet4),
+    ships4(_Fleet4),
 
     choose_NSized_Ships(2, 4, Fleet3, 0, [], NFleet),
     print2D(NFleet),nl,
@@ -64,7 +66,7 @@ create_fleet(Fleet) :-
     print2D(Fleet),nl.
 
 
-choose_NSized_Ships(0, FleetSize, Fleet, Flag, Buffer, NFleet) :-
+choose_NSized_Ships(0, _FleetSize, _Fleet, _Flag, _Buffer, NFleet) :-
     length(NFleet, Length),
     Length == 0,
     NFleet = [].
@@ -79,7 +81,7 @@ choose_NSized_Ships(N, FleetSize, Fleet, Flag, Buffer, NFleet) :-
         append(Temp, Buffer, NBuffer),
         pick_random_ship(1, FleetSize, Fleet, NBuffer, Ship)
     ),
-    {ShipCoords, _, _} = Ship,
+    {_ShipCoords, _, _} = Ship,
     append(Temp, [Ship], NFleet).
 
 %picks a unique random element from the list and stores it to Ship
@@ -89,7 +91,7 @@ pick_random_ship(1, N, Ships, TempList, Ship) :-
     nth1(Rand, Ships, S),
     {ShipCoords, _, _} = S,
     write('Selected Ship: '), write(ShipCoords), nl,
-    (not(collision(ShipCoords, TempList)) ->
+    (\+(collision(ShipCoords, TempList)) ->
         write('clash, attempting again'),nl,
         pick_random_ship(1, N, Ships, TempList, NewShip),
         append([], NewShip, Ship)
@@ -97,16 +99,16 @@ pick_random_ship(1, N, Ships, TempList, Ship) :-
         append([], S, Ship)
     ).
 
-collision(Ship, []).
-collision(Ship, [H|T]) :- {ShipCoords, _, _} = H,
-                          clash_free(Ship, ShipCoords),
-                          collision(Ship, T).
+collision(_Ship, []).
+collision(Ship,  [H|T]) :- {ShipCoords, _, _} = H,
+                           clash_free(Ship, ShipCoords),
+                           collision(Ship, T).
 
 
 %we are handling now lists with coordinates
-clash_free([], FleetShip).
+clash_free([],    _FleetShip).
 clash_free([H|T], FleetShip) :-
-    not(member(H, FleetShip)),
+    \+(member(H, FleetShip)),
     clash_free(T, FleetShip).
 
 
