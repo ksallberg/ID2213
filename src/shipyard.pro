@@ -19,7 +19,7 @@ ships3(Ships) :-
     Shipd = {
              [[4,7], [4,8], [4,9]],
              [],
-             [0,8]
+             [4,8]
             },
     Ships = [Shipa, Shipb, Shipc, Shipd].
 
@@ -54,11 +54,12 @@ create_fleet(Fleet) :-
     ships3(Fleet3),
     ships4(Fleet4),
 
-    choose_NSized_Ships(1, 4, Fleet3, 0, [], NFleet),
+    choose_NSized_Ships(2, 4, Fleet3, 0, [], NFleet),
     print2D(NFleet),nl,
-    choose_NSized_Ships(2, 4, Fleet4, 1, NFleet, NNFleet),
+    %choose_NSized_Ships(1, 4, Fleet4, 1, NFleet, NNFleet),
 
-    append(NFleet, NNFleet, Fleet),
+	Fleet = NFleet,
+    %append(NFleet, NNFleet, Fleet),
     nl,write('Printing fleet:'), nl,
     print2D(Fleet),nl.
 

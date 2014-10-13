@@ -10,9 +10,9 @@ fleet(Fleet) :-
                    [3,1]     % zhengyangs lucky point
                 },
         Ship2 = {
-                   [[3,2],[3,3],[3,4],[3,5],[3,6]],
+                   [[4,2],[4,3],[4,4],[4,5],[4,6]],
                    [],
-                   [3,4]
+                   [4,4]
                 },
         Fleet = [Ship1, Ship2].
 
@@ -21,7 +21,7 @@ fleet(Fleet) :-
 % reverse the ResultList to get the same order with trying order
 test_ai :-
     fleet(Fleet),
-    traverse(Fleet, [3,2], SinkList, ResultList),
+    traverse(Fleet, [4,3], SinkList, ResultList),
     reverse(ResultList, RevList),
     write(RevList).
 

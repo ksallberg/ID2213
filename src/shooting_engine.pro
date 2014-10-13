@@ -5,14 +5,15 @@
 % shoot([X,Y], Player, UpdatedPlayer)
 % the overall shoot function
 shoot([X,Y], {Board, CountSunk, Fleet}, {NewBoard, NewCounter, NewFleet}) :-
-              check_shoot([X,Y], Fleet, 's', NewFleet),write(NewFleet),
+              check_shoot([X,Y], Fleet, 's', NewFleet),
+			  write(': '), write('SHOOT_Fs: '),write(NewFleet),nl,
               get_ship_coordinate([X,Y], Fleet, CoordinateList),
               update_sink_ship(CoordinateList, 's', Board, NewBoard),
 			  NewCounter is CountSunk + 1.
-			  %%NewSunkenShips = ['S'|Sunken].
 
 shoot([X,Y], {Board, CountSunk, Fleet}, {NewBoard, CountSunk, NewFleet}) :-
-              check_shoot([X,Y], Fleet, 'h', NewFleet),write(NewFleet),
+              check_shoot([X,Y], Fleet, 'h', NewFleet),
+			  write(': '), write('SHOOT_Fh: '),write(NewFleet),nl,
               update_point([X,Y], 'h', Board, NewBoard).
 
 shoot([X,Y], {Board, CountSunk, Fleet}, {NewBoard, CountSunk, NewFleet}) :-
@@ -51,9 +52,9 @@ check_luckyPoint([X,Y], Ship, 's', NewShip) :-
 % check_hit([X,Y], Ship, Result, NewShip)
 % if [X,Y] is hit, return true and update ship state, Result = 'h'
 check_hit([X,Y], Ship, 'h', NewShip) :-
-        {CoordinateList,HitList,LuckyPoint} = Ship,write('HIT  '),write(Ship),
+        {CoordinateList,HitList,LuckyPoint} = Ship,
         [X,Y] \= LuckyPoint, 
-        member([X,Y], CoordinateList),write('ship was hit at '),write([X,Y]),nl,
+        member([X,Y], CoordinateList),write('ship was hit at '),
         append(HitList,[X,Y], NewHitList),
         NewShip = {CoordinateList,NewHitList,LuckyPoint}.
 
