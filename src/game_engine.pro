@@ -8,7 +8,7 @@
 % A Player is represented as:
 % {
 %	GameBoard,
-%	[SunkShips],
+%	SunkCounter,
 %   [Ships]
 % }
 
@@ -35,11 +35,11 @@ fleet(Fleet) :-
         Ship1 = {
                    [[3,2],[4,2],[5,2]],    % Ship positions
                    [],                       % hit points? FIXME whats this?
-                   [[4,2],0]           % zhengyangs lucky point
+                   [4,2]           % zhengyangs lucky point
                 },
         Ship2 = {  [[4,4],[5,4],[6,4]],
                    [],
-                   [[5,4],0]
+                   [5,4]
                 },
         Fleet = [Ship1, Ship2].
 
@@ -66,8 +66,8 @@ print_line([Char|Chars]) :- write(Char),
 
 create_state(InitialBoard, Player) :-
         %create_fleet(Fleet),
-        fleet(Fleet),
-        Player = {InitialBoard, [], Fleet}.
+		fleet(Fleet),
+        Player = {InitialBoard, 0, Fleet}.
 
 %% Starting point
 start :-
@@ -92,96 +92,104 @@ check_input(Input, Valid) :-
         check_input(NewInput, Valid).
 
 game_config({Human, AI}) :-
-    println('Hello human slave, do you want automatic (a), or manual (m) play mode?'),
-    read(Mode),
-    game_loop(Mode, {Human, AI}, 'YES').
+	println('Hello human slave, do you want automatic (a), or manual (m) play mode?'),
+	read(Mode),
+	game_loop(Mode, {Human, AI}, 'YES').
 
-
+	
 %% ********************** THE MIGHTY CORE ENGINE ************************
 
 game_loop("q")      :- write('Goodbye ship sinker!').
 game_loop(Mode, {Human, AI}, 'YES') :-
     {AIGameBoard,    AISunk,    AIFleet}    = AI,
     {HumanGameBoard, HumanSunk, HumanFleet} = Human,
-
-    %% check if the game must end
-    game_ended(AISunk, AIFleet, AiWins),
-    game_ended(HumanSunk, HumanFleet, HumanWins),
-
-    flatten_response(AiWins, HumanWins, Continue),
-
+		
     %% Before the human player gets its turn, let the AI play
     ai_choice(AIGameBoard, AIInput),
-
+	
     shoot(AIInput, AI, {AINewBoard, AINewSunk, AINewFleet}),
-
+	game_ended(AINewSunk, AIFleet, AiWins),
+	ai_response(AiWins, AiContinue),
+		
     println('Hello, I am the mighty AI, this is my board so far:'),
     print_board(AINewBoard), nl,
 
     %% AI has played. Now its the humans turn:
     println('This is your board, ship sinker: '),
-    print_board(HumanGameBoard), nl,
+	print_board(HumanGameBoard), nl,
 
-    (Mode == a ->
-        %% automatic mode, the computer keeps shooting and the slave (human) watches
-        %%sleep(1),
-        game_loop(Mode, {{HumanGameBoard, HumanSunk, HumanFleet},
-                   {AINewBoard, AINewSunk, AINewFleet}}, Continue)
-    ;
+	(Mode == a ->
+		%% automatic mode, the computer keeps shooting and the slave (human) watches
+		%sleep(1),
+		game_loop(Mode, {{HumanGameBoard, HumanSunk, HumanFleet},
+                   {AINewBoard, AINewSunk, AINewFleet}}, AiContinue)
+	;
 
-        println('Shoot at [X,Y]:'),
+		println('Shoot at [X,Y]:'),
 
-        read(Input),
-        check_input(Input, ValidInput),
-        (q == ValidInput ->
-            game_loop("q")
-        ;
-            nl,
-            [X,Y] = ValidInput,
-            shoot([X,Y],
-                  Human,
-                  {HumanNewBoard, HumanNewSunk, HumanNewFleet}),
-
-            nl,
-            game_loop(Mode, {{HumanNewBoard, HumanNewSunk, HumanNewFleet},
-                       {AINewBoard, AINewSunk, AINewFleet}}, Continue)
-        )
-    ).
+		read(Input),
+		check_input(Input, ValidInput),
+		(q == ValidInput ->
+			game_loop("q")
+		;
+			nl,
+			[X,Y] = ValidInput,
+			shoot([X,Y],
+				  Human,
+				  {HumanNewBoard, HumanNewSunk, HumanNewFleet}),
+				  
+			game_ended(HumanNewSunk, HumanFleet, HumanWins),			
+			human_response(HumanWins, HumanContinue),
+			
+			decide_continue(AiContinue, HumanContinue, FinalContinue),
+			
+			game_loop(Mode, {{HumanNewBoard, HumanNewSunk, HumanNewFleet},
+					   {AINewBoard, AINewSunk, AINewFleet}}, FinalContinue)
+		)
+	).
 
 %% The last parameter is NO, that is the game has to end
 game_loop(Mode, {Human, AI}, 'NO') :-
 
-    {AIBoard, AISunk, _} = AI,
+	{AIBoard, AISunk, _} = AI,
     {HumanBoard, HumanSunk, _} = Human,
 
-    println('_______Game ended_______'),
-    print_board(AIBoard), nl,
-    print_board(HumanBoard), nl,
+	println('_______Game ended_______'),
+	print_board(AIBoard), nl,
+	print_board(HumanBoard), nl,
 
-    length(AISunk, AIScore),
-    length(HumanSunk, HumanScore),
+	%length(AISunk, AIScore),
+	%length(HumanSunk, HumanScore),
 
-    (AIScore > HumanScore ->
-        println('You lose ship sinker')
-    ;
-        println('You win ship sinker')
-    ),
+	(AISunk > HumanSunk ->
+		println('You lose ship sinker')
+	;
+		println('You win ship sinker')
+	),
 
-    game_loop("q").
+	game_loop("q").
 
 %% If someone wins (YES), then the game must not continue (NO)
-flatten_response('YES', _, 'NO').
-flatten_response(_, 'YES', 'NO').
-flatten_response('NO', 'NO', 'YES').
+ai_response('YES', 'NO').
+ai_response('NO', 'YES').
+human_response('YES', 'NO').
+human_response('NO', 'YES').
+
+decide_continue('NO', _, 'NO').
+decide_continue(_, 'NO', 'NO').
+decide_continue('YES', 'YES', 'YES').
+
 
 game_ended(Sunk, Fleet, Response) :-
-    length(Sunk, CountSunk),
-    length(Fleet, CountFleet),
+	length(Fleet, CountFleet),
 
-    CountSunk == CountFleet,
-    Response = 'YES'.
-
+	Sunk == CountFleet,
+	Response = 'YES'.
+	
 game_ended(Sunk, Fleet, Response) :-
+	length(Fleet, CountFleet),
+	Sunk \= CountFleet,
 	Response = 'NO'.
+	
 
 println(String) :- write(String),nl.

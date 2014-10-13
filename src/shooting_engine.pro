@@ -4,17 +4,17 @@
 
 % shoot([X,Y], Player, UpdatedPlayer)
 % the overall shoot function
-shoot([X,Y], {Board, Sunken, Fleet}, {NewBoard, NewSunkenShips, NewFleet}) :-
+shoot([X,Y], {Board, CountSunk, Fleet}, {NewBoard, NewCounter, NewFleet}) :-
               check_shoot([X,Y], Fleet, 's', NewFleet),write(NewFleet),
               get_ship_coordinate([X,Y], Fleet, CoordinateList),
               update_sink_ship(CoordinateList, 's', Board, NewBoard),
-			  NewSunkenShips = [S|Sunken].
+			  NewCounter is CountSunk + 1.
 
-shoot([X,Y], {Board, [], Fleet}, {NewBoard, [], NewFleet}) :-
+shoot([X,Y], {Board, CountSunk, Fleet}, {NewBoard, CountSunk, NewFleet}) :-
               check_shoot([X,Y], Fleet, 'h', NewFleet),write(NewFleet),
               update_point([X,Y], 'h', Board, NewBoard).
 
-shoot([X,Y], {Board, [], Fleet}, {NewBoard, [], NewFleet}) :-
+shoot([X,Y], {Board, CountSunk, Fleet}, {NewBoard, CountSunk, NewFleet}) :-
               check_shoot([X,Y], Fleet, 'm', NewFleet),
               update_point([X,Y], 'm', Board, NewBoard).
 
