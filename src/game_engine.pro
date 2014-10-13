@@ -65,8 +65,8 @@ print_line([Char|Chars]) :- write(Char),
                             print_line(Chars).
 
 create_state(InitialBoard, Player) :-
-        %create_fleet(Fleet),
-		fleet(Fleet),
+        create_fleet(Fleet),
+		%fleet(Fleet),
         Player = {InitialBoard, 0, Fleet}.
 
 %% Starting point
@@ -92,11 +92,11 @@ check_input(Input, Valid) :-
         check_input(NewInput, Valid).
 
 game_config({Human, AI}) :-
-    println('Hello human slave, do you want automatic (a), or manual (m) play mode?'),
-    read(Mode),
-    game_loop(Mode, {Human, AI}, 'YES').
+	println('Hello human slave, do you want automatic (a), or manual (m) play mode?'),
+	read(Mode),
+	game_loop(Mode, {Human, AI}, 'YES').
 
-
+	
 %% ********************** THE MIGHTY CORE ENGINE ************************
 
 game_loop("q")      :- write('Goodbye ship sinker!').
@@ -106,29 +106,26 @@ game_loop(Mode, {Human, AI}, 'YES') :-
 		
     %% Before the human player gets its turn, let the AI play
     ai_choice(AIGameBoard, AIInput),
-
+	
     shoot(AIInput, AI, {AINewBoard, AINewSunk, AINewFleet}),
 	game_ended(AINewSunk, AIFleet, AiWins),
-	ai_response(AiWins, Continue),
-	
-	write('AIWINS IS '),println(AiWins),
-	write('RESPONSE IS '),println(Continue),
-	
+	ai_response(AiWins, AiContinue),
+		
     println('Hello, I am the mighty AI, this is my board so far:'),
     print_board(AINewBoard), nl,
 
     %% AI has played. Now its the humans turn:
     println('This is your board, ship sinker: '),
-    print_board(HumanGameBoard), nl,
+	print_board(HumanGameBoard), nl,
 
 	(Mode == a ->
 		%% automatic mode, the computer keeps shooting and the slave (human) watches
-		%sleep(1),
+		sleep(1),
 		game_loop(Mode, {{HumanGameBoard, HumanSunk, HumanFleet},
-                   {AINewBoard, AINewSunk, AINewFleet}}, Continue)
-    ;
+                   {AINewBoard, AINewSunk, AINewFleet}}, AiContinue)
+	;
 
-        println('Shoot at [X,Y]:'),
+		println('Shoot at [X,Y]:'),
 
 		read(Input),
 		check_input(Input, ValidInput),
@@ -141,27 +138,25 @@ game_loop(Mode, {Human, AI}, 'YES') :-
 				  Human,
 				  {HumanNewBoard, HumanNewSunk, HumanNewFleet}),
 				  
-			game_ended(HumanNewSunk, HumanFleet, HumanWins),
-			write('HUMANWINS IS '),println(HumanWins),
+			game_ended(HumanNewSunk, HumanFleet, HumanWins),			
+			human_response(HumanWins, HumanContinue),
 			
-			human_response(HumanWins, Continue),
-			write('RESPONSE IS '),println(Continue),
+			decide_continue(AiContinue, HumanContinue, FinalContinue),
 			
-			nl,
 			game_loop(Mode, {{HumanNewBoard, HumanNewSunk, HumanNewFleet},
-					   {AINewBoard, AINewSunk, AINewFleet}}, Continue)
+					   {AINewBoard, AINewSunk, AINewFleet}}, FinalContinue)
 		)
 	).
 
 %% The last parameter is NO, that is the game has to end
 game_loop(Mode, {Human, AI}, 'NO') :-
 
-    {AIBoard, AISunk, _} = AI,
+	{AIBoard, AISunk, _} = AI,
     {HumanBoard, HumanSunk, _} = Human,
 
-    println('_______Game ended_______'),
-    print_board(AIBoard), nl,
-    print_board(HumanBoard), nl,
+	println('_______Game ended_______'),
+	print_board(AIBoard), nl,
+	print_board(HumanBoard), nl,
 
 	%length(AISunk, AIScore),
 	%length(HumanSunk, HumanScore),
@@ -172,7 +167,7 @@ game_loop(Mode, {Human, AI}, 'NO') :-
 		println('You win ship sinker')
 	),
 
-    game_loop("q").
+	game_loop("q").
 
 %% If someone wins (YES), then the game must not continue (NO)
 ai_response('YES', 'NO').
@@ -180,20 +175,21 @@ ai_response('NO', 'YES').
 human_response('YES', 'NO').
 human_response('NO', 'YES').
 
+decide_continue('NO', _, 'NO').
+decide_continue(_, 'NO', 'NO').
+decide_continue('YES', 'YES', 'YES').
+
+
 game_ended(Sunk, Fleet, Response) :-
-	%length(Sunk, CountSunk),
 	length(Fleet, CountFleet),
 
-	write(': '),write('length of the fleet '),println(CountFleet),
-	write(': '),write('length of the sunk '),println(Sunk),
-
 	Sunk == CountFleet,
-	println('THE GAME MUST END'),
 	Response = 'YES'.
 	
 game_ended(Sunk, Fleet, Response) :-
 	length(Fleet, CountFleet),
 	Sunk \= CountFleet,
 	Response = 'NO'.
+	
 
 println(String) :- write(String),nl.
